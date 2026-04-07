@@ -46,7 +46,7 @@ Key observations:
 
 ### Model Complexity
 
-![Fusion Comparison](MultiBench/fusion_comparison.png)
+![Fusion Comparison](img/fusion_comparison.png)
 
 ---
 
