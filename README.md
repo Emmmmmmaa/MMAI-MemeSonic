@@ -16,14 +16,11 @@ MemeSonic gives memes a voice. Given a static meme image, the system:
 Rather than hiding interpretation inside a latent space, MemeSonic makes affective reading visible and steerable — the same intermediate layer can also support mood-based meme retrieval.
 
 ## Prototype
+
+[Try the prototype](https://gemini.google.com/share/12a097b0d1bb)
+
  ![MemeSonic Pipeline](img/flow.png)
 
-**Example output:**
-
-- **Input:** Doge side-eye meme
-- **Detected mood:** `SARCASTIC`
-- **Voice script:** *"Much wow. Very side eye. So judge."*
-- **Output:** Expressive audio matching the sarcastic tone
 
 ---
 ## System Architecture
