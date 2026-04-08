@@ -18,12 +18,6 @@ Rather than hiding interpretation inside a latent space, MemeSonic makes affecti
 ## Prototype
  ![MemeSonic Pipeline](img/flow.png)
 
-| Step | Description |
-|------|-------------|
-| **1. Upload** | Select a meme image or choose from quick presets |
-| **2. Analyze** | Gemini interprets the meme's mood, tone, and meaning |
-| **3. Generate** | The system produces a sentiment tag, voice script, and audio |
-
 **Example output:**
 
 - **Input:** Doge side-eye meme
