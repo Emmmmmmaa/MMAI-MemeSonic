@@ -39,6 +39,29 @@ The prototype is powered by Gemini Multimodal. Upload a meme image, and MemeSoni
 
 ---
 
+## System Architecture
+
+MemeSonic consists of two pipelines:
+
+### Forward Pipeline: Meme → Audio Generation
+
+```
+Meme Image → Multimodal LLM → Explicit Intermediate Layer → TTS/Audio → Expressive Audio
+                                (mood, tone, tags, meaning)
+```
+
+The forward pipeline extracts an explicit intermediate representation from the meme — such as mood, tone, sentiment tags, or a voice script — and uses it as a conditioning signal for audio generation.
+
+### Backward Pipeline: Mood-Based Meme Retrieval
+
+```
+User Query ("awkward silence") → Embedding → Affective Search → Retrieved Meme
+```
+
+The backward pipeline reuses the same affective representation to support mood-based meme retrieval, helping users find memes by describing a feeling or vibe.
+
+---
+
 **Gaps**
 - Existing models struggle to decode semantic irony and cultural nuance in memes
 - Dynamic meme generation, especially the acoustic dimension, remains largely unaddressed
