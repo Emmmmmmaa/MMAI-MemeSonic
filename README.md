@@ -20,6 +20,25 @@ Rather than hiding interpretation inside a latent space, MemeSonic makes affecti
 
 ---
 
+## Demo
+
+The prototype is powered by Gemini Multimodal. Upload a meme image, and MemeSonic analyzes its tone and generates a matching voiceover.
+
+| Step | Description |
+|------|-------------|
+| **1. Upload** | Select a meme image or choose from quick presets |
+| **2. Analyze** | Gemini interprets the meme's mood, tone, and meaning |
+| **3. Generate** | The system produces a sentiment tag, voice script, and audio |
+
+**Example output:**
+
+- **Input:** Doge side-eye meme
+- **Detected mood:** `SARCASTIC`
+- **Voice script:** *"Much wow. Very side eye. So judge."*
+- **Output:** Expressive audio matching the sarcastic tone
+
+---
+
 **Gaps**
 - Existing models struggle to decode semantic irony and cultural nuance in memes
 - Dynamic meme generation, especially the acoustic dimension, remains largely unaddressed
