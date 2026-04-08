@@ -77,8 +77,6 @@ The backward pipeline reuses the same affective representation to support mood-b
 
 ## Homeworks
 
-| | Topic | Link |
-|---|---|---|
-| HW1 | **`music+motion`** Music & Motion Data Preparation | [homework/homework1/](homework/homework1/README.md) |
-| HW2 | **`meme`** Meme Fusion and Alignment | [homework/homework2/](homework/homework2/README.md) |
-| HW3 | **`meme`** Meme LLM Fine-tuning | [homework/homework3/](homework/homework3/README.md) |
+- HW1: [MMAI HW1 — Music & Motion Data Preparation](homework/homework1/README.md)
+- HW2: [HW2: Multimodal Fusion and Alignment — MET Meme](homework/homework2/README.md)
+- HW3: [Homework 3: Fine-Tuning Vision-Language Models for Meme Classification](homework/homework3/README.md)
