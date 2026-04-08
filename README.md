@@ -4,7 +4,7 @@
 
 > A multimodal prototype that interprets the mood and meaning of a meme image and generates matching expressive audio — built for MIT MAS.S60 Multimodal AI (Spring 2026).
 
-![System Overview](images/pipeline_figure.png)
+![System Overview](img/pipeline_figure.png)
 
 ---
 
