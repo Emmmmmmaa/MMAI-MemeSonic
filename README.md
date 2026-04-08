@@ -2,9 +2,21 @@
 
 **MemeSonic: Giving Memes a Voice Through Affective Multimodal Generation**
 
-> A multimodal prototype that interprets the mood and meaning of a meme image and generates matching expressive audio — built for MIT MAS.S60 Multimodal AI (Spring 2026).
-
+> A multimodal prototype that interprets the mood and meaning of a meme image and generates matching expressive audio.
 ![System Overview](img/pipeline_figure.png)
+
+---
+## What is MemeSonic?
+
+Internet memes are multimodal expressions where meaning depends on the interplay of image, text, and implicit cultural context. Yet memes remain silent — their tone, irony, and affect exist only in the reader's head.
+
+MemeSonic gives memes a voice. Given a static meme image, the system:
+
+1. **Interprets** the meme's mood, tone, and meaning using a multimodal LLM
+2. **Surfaces** that interpretation as an explicit, human-readable intermediate layer (e.g., sentiment tag, voice script)
+3. **Generates** expressive voice-based audio that matches how the meme is read
+
+Rather than hiding interpretation inside a latent space, MemeSonic makes affective reading visible and steerable — the same intermediate layer can also support mood-based meme retrieval.
 
 ---
 
