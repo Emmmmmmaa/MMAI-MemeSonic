@@ -15,9 +15,8 @@ MemeSonic gives memes a voice. Given a static meme image, the system:
 
 Rather than hiding interpretation inside a latent space, MemeSonic makes affective reading visible and steerable — the same intermediate layer can also support mood-based meme retrieval.
 
-## Demo
-
-The prototype is powered by Gemini Multimodal. Upload a meme image, and MemeSonic analyzes its tone and generates a matching voiceover.
+## Prototype
+ ![MemeSonic Pipeline](img/flow.png)
 
 | Step | Description |
 |------|-------------|
