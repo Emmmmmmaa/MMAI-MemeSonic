@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+env/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Generated audio outputs
+*.mp3
+*.wav
+*.zip
+
+# Node (demo)
+node_modules/
+demo/node_modules/
+demo/dist/
+
+# Large data / model weights
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.safetensors
