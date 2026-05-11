@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/ruyiyang/Documents/courseware/2026_Spring/mas60/mmai_project/MMAI-MemeSonic filter-branch -f --force --tree-filter ' *)",
+      "Bash(git -C /Users/ruyiyang/Documents/courseware/2026_Spring/mas60/mmai_project/MMAI-MemeSonic show e8d63f8 -- image-text-fusion/llm_baseline_eval.ipynb)"
+    ]
+  }
+}
