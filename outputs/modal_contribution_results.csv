@@ -1,12 +1,12 @@
 config,stability,style,sent_acc,int_acc
-V_only,,,0.15,0.38
-V+T,,,0.27,0.45
-V+T+A (stablow_stylelow),0.2,0.2,0.27,0.45
-V+T+A (stablow_stylemid),0.2,0.5,0.27,0.45
-V+T+A (stablow_stylehigh),0.2,0.8,0.27,0.45
-V+T+A (stabmid_stylelow),0.5,0.2,0.27,0.45
-V+T+A (stabmid_stylemid),0.5,0.5,0.27,0.45
-V+T+A (stabmid_stylehigh),0.5,0.8,0.27,0.45
-V+T+A (stabhigh_stylelow),0.8,0.2,0.27,0.45
-V+T+A (stabhigh_stylemid),0.8,0.5,0.27,0.45
-V+T+A (stabhigh_stylehigh),0.8,0.8,0.27,0.45
+V_only,,,0.26,0.43
+V+T,,,0.32,0.47
+V+T+A (stablow_stylelow),0.2,0.2,0.32,0.47
+V+T+A (stablow_stylemid),0.2,0.5,0.32,0.47
+V+T+A (stablow_stylehigh),0.2,0.8,0.32,0.47
+V+T+A (stabmid_stylelow),0.5,0.2,0.32,0.47
+V+T+A (stabmid_stylemid),0.5,0.5,0.32,0.47
+V+T+A (stabmid_stylehigh),0.5,0.8,0.32,0.47
+V+T+A (stabhigh_stylelow),0.8,0.2,0.32,0.47
+V+T+A (stabhigh_stylemid),0.8,0.5,0.32,0.47
+V+T+A (stabhigh_stylehigh),0.8,0.8,0.32,0.47

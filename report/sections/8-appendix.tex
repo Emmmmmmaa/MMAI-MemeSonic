@@ -69,15 +69,6 @@ MMSD 2.0 & sarcasm    & 77.5 & 77.6 & 82.6 & 82.0 & \best{84.0} & 83.0 & \best{8
 \end{tabular}}
 \end{table}
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\linewidth]{figures/llm_vs_trained_f1_heatmap.png}
-  \caption{Macro-F1 gap between the best LLM zero-shot baseline and the best trained model per task.
-  Green = trained model wins; red = LLM wins. Trained models dominate on structured non-literal tasks
-  (metaphor, motivational, sentiment); LLMs dominate on open-ended reasoning tasks (intention, sarcasm).}
-  \label{fig:llm_heatmap}
-\end{figure}
-
 % ─────────────────────────────────────────────────────────────────────────────
 \section{t-SNE Visualization of Audio Embeddings}
 \label{sec:tsne}
@@ -100,7 +91,7 @@ stability) introduced by different ElevenLabs voice settings.
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Prosody Grid Details}
 \label{sec:prosody_grid}
-
+Macro-F1 gap between the 
 The 9-point prosody grid used in the tri-modal alignment study spans:
 \[
   \text{stability} \in \{0.2,\,0.5,\,0.8\} \;\times\; \text{style} \in \{0.2,\,0.5,\,0.8\}
@@ -129,6 +120,113 @@ the intended perceptual effect of each setting combination.
 \bottomrule
 \end{tabular}
 \end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Implementation Details}
+\label{sec:impl_details}
+
+Tables~\ref{tab:hparam_phase2}--\ref{tab:hparam_phase1} summarize hyperparameters for each phase.
+All experiments run on CPU (MacBook Pro M2); no GPU is required.
+
+\begin{table}[h]
+\centering
+\caption{Phase 2 — Multimodal Fusion hyperparameters.}
+\label{tab:hparam_phase2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Component} & \textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+Encoder      & Backbone        & CLIP ViT-B/32 (frozen) \\
+             & Output dim      & 512 \\
+\midrule
+MLP Head     & Hidden layers   & $512 \to 256 \to$ num\_classes \\
+             & Activation      & ReLU \\
+             & Dropout         & $p = 0.3$ \\
+\midrule
+Training     & Optimizer       & AdamW \\
+             & Learning rate   & $5\times10^{-4}$ \\
+             & Weight decay    & $10^{-3}$ \\
+             & Batch size      & 64 \\
+             & Max epochs      & 15 \\
+             & Early stopping  & patience 5 (val Macro-F1) \\
+\midrule
+FusionMoE    & Temperature $\tau$   & 0.05 \\
+             & Gating network  & Single linear layer \\
+             & Gating input    & $[\phi_v;\,\phi_t;\,\delta]$ (dim 1025) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phase 3 — Tri-Modal Alignment hyperparameters.}
+\label{tab:hparam_phase3}
+\begin{tabular}{lll}
+\toprule
+\textbf{Component} & \textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+Audio Encoder  & Model           & Emotion2Vec (iic/emotion2vec\_plus\_large) \\
+               & Output dim      & 1,024 \\
+Target Space   & Model           & ImageBind \\
+               & Dim             & 1,024 \\
+\midrule
+Projector      & Architecture    & Linear + L2 normalize \\
+               & Optimizer       & AdamW \\
+               & Learning rate   & $10^{-3}$ \\
+               & LR schedule     & Cosine decay \\
+               & Batch size      & 32 \\
+               & Epochs          & 300 \\
+\midrule
+Data           & Train/Test split & 80/20 (720/180 samples) \\
+               & Augmentation    & 9 prosody variants per meme \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Phase 1 — Audio Generation hyperparameters (Incongruity-to-Prosody Adapter).}
+\label{tab:hparam_phase1}
+\begin{tabular}{lll}
+\toprule
+\textbf{Component} & \textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+Prosody Mapping & stability formula   & $1 - 0.6\,\delta$ \\
+                & style formula       & $0.7\,\delta$ \\
+                & Training            & None (fixed affine mapping) \\
+\midrule
+ElevenLabs      & \texttt{similarity\_boost}    & 0.75 \\
+                & \texttt{use\_speaker\_boost}  & True \\
+                & Voice               & Fixed identity across all memes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Error Analysis}
+\label{sec:error_analysis}
+
+\textbf{Where Incongruity Fusion fails.}
+Incongruity Fusion underperforms on MET/intention ($-15.6\%$ F1 vs.\ Unimodal-Image) and
+Memotion/humour ($-8.9\%$ F1 vs.\ Late Fusion). In both cases, the incongruity signal introduces
+noise when the task requires holistic understanding rather than conflict exploitation.
+Intention classification (interactive, entertaining, etc.) is determined by distributional
+properties of the image-text pair, not their emotional contrast. Future work could gate the
+incongruity feature adaptively per task rather than applying it uniformly.
+
+\textbf{LLMs and reasoning models.}
+The strong performance of o4-mini (CoT) on Memotion/offensive (59.9\% F1) and sarcasm (44.0\% F1)
+suggests that chain-of-thought reasoning provides substantial benefit for tasks requiring social
+context—an advantage unavailable to our CLIP-based trained models. Combining LLM reasoning with
+our incongruity signal (e.g., as a structured prompt feature) is a promising direction.
+
+\textbf{Emotion2Vec vs.\ ImageBind for audio.}
+ImageBind is trained on environmental sounds and achieves effectively zero performance on TTS
+speech alignment ($A \leftrightarrow T$ Top-1 $\approx$ 0.00 in our probing). Emotion2Vec
+captures sentiment-discriminative structure but not prosodic style variation. Neither model is
+ideal for meme voiceover; a model trained on emotionally annotated TTS speech would be needed
+for complete tri-modal integration without relying on a learned projector.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Dataset Statistics}

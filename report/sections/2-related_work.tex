@@ -1,46 +1,46 @@
-\section{Related Work}
+% \section{Related Work}
 
-\subsection{Meme Understanding and Affect Analysis}
-Early meme analysis focused on hateful content detection~\citep{kiela2020hateful}, framing the problem
-as binary classification over image-text pairs with concatenated unimodal representations. MemeCLIP~\citep{shi2024memeclip} extended this to contrastive pre-training with meme-specific augmentations.
-MER-Bench and related surveys~\citep{sharma2020semeval,caton2023memotion} introduced multi-task sentiment, humor, and offensiveness labels for Memotion 7k and MMSD 2.0~\citep{mmsd2}, providing standardized benchmarks we adopt. A critical limitation shared by all these works is that they treat image and text as semantically synergistic—averaging or concatenating representations—and do not model the \emph{intentional conflict} that gives memes their expressive character.
+% \subsection{Meme Understanding and Affect Analysis}
+% Early meme analysis focused on hateful content detection~\citep{kiela2020hateful}, framing the problem
+% as binary classification over image-text pairs with concatenated unimodal representations. MemeCLIP~\citep{shi2024memeclip} extended this to contrastive pre-training with meme-specific augmentations.
+% MER-Bench and related surveys~\citep{sharma2020semeval,caton2023memotion} introduced multi-task sentiment, humor, and offensiveness labels for Memotion 7k and MMSD 2.0~\citep{mmsd2}, providing standardized benchmarks we adopt. A critical limitation shared by all these works is that they treat image and text as semantically synergistic—averaging or concatenating representations—and do not model the \emph{intentional conflict} that gives memes their expressive character.
 
-\subsection{Multimodal Fusion with Conflict Modeling}
-CLIP~\citep{radford2021clip} and BLIP~\citep{li2022blip} achieve strong image-text alignment by
-assuming cross-modal agreement; ALIGN~\citep{jia2021align} scales this with noisy web data. ImageBind~\citep{girdhar2023imagebind} extends alignment to six modalities via shared embedding spaces. These
-models excel on literal, descriptive content but struggle on memes where visual and textual affect
-diverge. MULT~\citep{tsai2019mult} introduces cross-modal attention for sentiment analysis in video
-but operates on synchronized temporal streams rather than static image-text pairs. MMOE~\citep{yu2024mmoe} proposes interaction-type-aware expert routing for multimodal fusion, which we adapt and
-extend with explicit incongruity conditioning. Unlike MMOE's learned router, our router is directly
-conditioned on a computed incongruity score, giving it an inductive bias toward cross-modal conflict.
+% \subsection{Multimodal Fusion with Conflict Modeling}
+% CLIP~\citep{radford2021clip} and BLIP~\citep{li2022blip} achieve strong image-text alignment by
+% assuming cross-modal agreement; ALIGN~\citep{jia2021align} scales this with noisy web data. ImageBind~\citep{girdhar2023imagebind} extends alignment to six modalities via shared embedding spaces. These
+% models excel on literal, descriptive content but struggle on memes where visual and textual affect
+% diverge. MULT~\citep{tsai2019mult} introduces cross-modal attention for sentiment analysis in video
+% but operates on synchronized temporal streams rather than static image-text pairs. MMOE~\citep{yu2024mmoe} proposes interaction-type-aware expert routing for multimodal fusion, which we adapt and
+% extend with explicit incongruity conditioning. Unlike MMOE's learned router, our router is directly
+% conditioned on a computed incongruity score, giving it an inductive bias toward cross-modal conflict.
 
-\subsection{Humor and Incongruity in Computational Humor}
-The incongruity-resolution theory of humor~\citep{suls1972two} posits that humor arises from the
-detection and resolution of a perceived incongruity. Computational work has operationalized this in
-text~\citep{yang2015humor} and image-text pairs~\citep{hessel2022meme}, but has rarely embedded
-it as an architectural component in fusion models. \citet{cai2019multi} use a hierarchical model for
-meme sentiment but do not explicitly score or route on incongruity. Our work is the first to use a
-differentiable incongruity score as a routing signal in a multi-expert fusion framework.
+% \subsection{Humor and Incongruity in Computational Humor}
+% The incongruity-resolution theory of humor~\citep{suls1972two} posits that humor arises from the
+% detection and resolution of a perceived incongruity. Computational work has operationalized this in
+% text~\citep{yang2015humor} and image-text pairs~\citep{hessel2022meme}, but has rarely embedded
+% it as an architectural component in fusion models. \citet{cai2019multi} use a hierarchical model for
+% meme sentiment but do not explicitly score or route on incongruity. Our work is the first to use a
+% differentiable incongruity score as a routing signal in a multi-expert fusion framework.
 
-\subsection{Expressive and Controllable Text-to-Speech}
-Neural TTS has advanced rapidly from Tacotron~\citep{wang2017tacotron} and FastSpeech~\citep{ren2021fastspeech} to StyleTTS2~\citep{li2024styletts2}, which models style as a latent variable
-enabling fine-grained prosody control. Emotion-conditioned TTS systems~\citep{lei2022emotion} transfer
-emotional styles from reference audio. ElevenLabs provides commercial TTS with \texttt{voice\_settings}
-parameters (stability, style) that offer limited but usable prosody control. Emotion2Vec~\citep{ma2023emotion2vec} extracts speech emotion embeddings trained on emotional speech corpora. None of these
-systems have been adapted to meme-specific pragmatic control, where the input is not a desired emotion
-label but a cross-modal incongruity signal derived from image-text analysis.
+% \subsection{Expressive and Controllable Text-to-Speech}
+% Neural TTS has advanced rapidly from Tacotron~\citep{wang2017tacotron} and FastSpeech~\citep{ren2021fastspeech} to StyleTTS2~\citep{li2024styletts2}, which models style as a latent variable
+% enabling fine-grained prosody control. Emotion-conditioned TTS systems~\citep{lei2022emotion} transfer
+% emotional styles from reference audio. ElevenLabs provides commercial TTS with \texttt{voice\_settings}
+% parameters (stability, style) that offer limited but usable prosody control. Emotion2Vec~\citep{ma2023emotion2vec} extracts speech emotion embeddings trained on emotional speech corpora. None of these
+% systems have been adapted to meme-specific pragmatic control, where the input is not a desired emotion
+% label but a cross-modal incongruity signal derived from image-text analysis.
 
-\subsection{Audio in Multimodal Understanding}
-ImageBind~\citep{girdhar2023imagebind} aligns audio with other modalities via contrastive training on
-environmental sounds (AudioSet), achieving near-perfect text-audio retrieval on natural sounds but
-essentially zero performance on TTS-generated emotional speech (Top-1 $\approx$ 0.00 in our probing
-experiments). This \emph{modality gap}—the incompatibility between pretrained embedding spaces from
-different training regimes—is a known challenge in multimodal learning~\citep{liang2022mind}. We study
-this gap empirically in the meme audio domain and propose a linear projector bridge as a diagnostic
-tool, contributing to the understanding of when and why late fusion fails.
+% \subsection{Audio in Multimodal Understanding}
+% ImageBind~\citep{girdhar2023imagebind} aligns audio with other modalities via contrastive training on
+% environmental sounds (AudioSet), achieving near-perfect text-audio retrieval on natural sounds but
+% essentially zero performance on TTS-generated emotional speech (Top-1 $\approx$ 0.00 in our probing
+% experiments). This \emph{modality gap}—the incompatibility between pretrained embedding spaces from
+% different training regimes—is a known challenge in multimodal learning~\citep{liang2022mind}. We study
+% this gap empirically in the meme audio domain and propose a linear projector bridge as a diagnostic
+% tool, contributing to the understanding of when and why late fusion fails.
 
-\paragraph{How our work differs.}
-To our knowledge, MemeSonic is the first system to (1) model cross-modal incongruity as an explicit
-differentiable signal for both understanding and generation; (2) condition TTS prosody on this
-incongruity score rather than discrete emotion labels; and (3) conduct a controlled tri-modal alignment
-study in the meme domain, separating the contribution of audio modality from the modality gap problem.
+% \paragraph{How our work differs.}
+% To our knowledge, MemeSonic is the first system to (1) model cross-modal incongruity as an explicit
+% differentiable signal for both understanding and generation; (2) condition TTS prosody on this
+% incongruity score rather than discrete emotion labels; and (3) conduct a controlled tri-modal alignment
+% study in the meme domain, separating the contribution of audio modality from the modality gap problem.

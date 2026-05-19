@@ -6,18 +6,21 @@ conflict-dominant, non-literal language that defines meme affect.
 We present \textbf{MemeSonic}, a unified framework for meme affective understanding and expressive
 audio generation, built on a central premise: the \emph{incongruity} between image and text is not
 noise to suppress but a differentiable signal to model.
-Our framework decomposes image and text into independent emotion distributions, derives a continuous
-cross-modal incongruity score, and uses it to drive both an \emph{Incongruity-Aware
-Mixture-of-Experts (MMOE) Fusion} for classification and an \emph{Incongruity-to-Prosody Adapter}
-for expressive speech synthesis.
-Across ten classification tasks on three meme benchmarks (MET-Meme, Memotion~7k, MMSD~2.0),
-Incongruity Fusion achieves the best Macro-F1 on five tasks and MMOE achieves best on four,
-outperforming standard fusion baselines by up to \textbf{+12.1\%} accuracy.
-A human evaluation of generated audio (n=84 responses) shows MemeSonic achieves AMOS~3.95
+To capture this signal, our framework first introduces independent multimodal encoding: image and text
+are each mapped to their own emotion distributions, and a continuous cross-modal incongruity score is
+derived from their divergence—making the tension between modalities an explicit, learnable feature
+rather than an artifact to discard.
+This incongruity score then drives \emph{Incongruity-Aware Mixture-of-Experts (MMOE) Fusion} for
+affective classification. Across ten tasks on three meme benchmarks (MET-Meme, Memotion~7k,
+MMSD~2.0), Incongruity Fusion achieves the best Macro-F1 on five tasks and MMOE achieves best on
+four, outperforming standard fusion baselines by up to \textbf{+12.1\%} accuracy.
+Beyond classification, we propagate the same incongruity signal into audio generation via an
+\emph{Incongruity-to-Prosody Adapter}, enabling expressive speech synthesis that mirrors the
+affective tension of the source meme. Human evaluation (n=84) shows MemeSonic achieves AMOS~3.95
 vs.\ 1.68 for Vanilla TTS, with 84.5\% preference in A/B tests.
-To study how audio modality contributes beyond image-text, we conduct a controlled tri-modal alignment
-experiment using Emotion2Vec embeddings, revealing that the naive heterogeneous space fusion yields
-zero modal contribution, while a learned linear projector bridges the modality gap and raises sentiment
-accuracy from 27\% to 82\%—demonstrating that audio carries strong non-redundant affective signal once
-properly aligned.
+Finally, to assess whether audio carries affective signal beyond image and text, we conduct a
+controlled tri-modal alignment experiment using Emotion2Vec embeddings, finding that naive
+heterogeneous fusion yields zero modal contribution, while a learned linear projector bridges the
+modality gap and raises sentiment accuracy from 27\% to 82\%—confirming that audio is a
+non-redundant affective modality once properly aligned.
 \end{abstract}
