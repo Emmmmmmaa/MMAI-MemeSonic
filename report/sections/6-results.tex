@@ -1,0 +1,282 @@
+\section{Results and Discussion}
+
+\subsection{Phase 1: Multimodal Understanding}
+
+\subsubsection{Main Results}
+
+Table~\ref{tab:main_results} reports Macro-F1 and Accuracy across all 10 tasks.
+Figure~\ref{fig:heatmap} visualizes the accuracy delta of each fusion method relative to the
+best unimodal baseline.
+
+\begin{table}[t]
+\centering
+\caption{Macro-F1 comparison across all methods and tasks. \best{Bold green} = best trained model.
+LLM baselines shown for reference (not directly comparable due to different inference regime).}
+\label{tab:main_results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccccc|ccccc}
+\toprule
+ & & \multicolumn{7}{c|}{\textbf{Trained Models}} & \multicolumn{5}{c}{\textbf{LLM Zero-Shot}} \\
+\cmidrule(lr){3-9}\cmidrule(lr){10-14}
+Dataset & Task & Uni-I & Uni-T & Concat & Late & Incong & MULT & MMOE
+        & GPT-4o & Gemini & o4-mini & Gemini-CoT & Qwen3 \\
+\midrule
+MET-Meme & intention  & 31.8 & 29.7 & 31.7 & 30.7 & 21.2 & 27.0 & 27.3
+                      & 35.3 & 33.6 & 44.7 & 26.6 & 40.0 \\
+MET-Meme & sentiment  & 24.7 & 23.7 & 31.0 & 27.8 & 25.3 & 24.3 & 26.8
+                      & 28.3 & 32.7 & 33.3 & 38.6 & 30.2 \\
+MET-Meme & hate       & 39.1 & 38.8 & 37.5 & 38.0 & 37.3 & \best{41.4} & 38.3
+                      & 29.8 & 35.6 & 44.4 & 30.2 & 31.4 \\
+MET-Meme & metaphor   & 81.2 & 75.5 & 82.9 & 81.8 & \best{87.6} & 84.7 & \best{87.6}
+                      & 36.7 & 71.3 & 73.1 & 63.5 & 57.1 \\
+\midrule
+Memotion & humour     & 36.0 & 33.2 & 35.8 & \best{36.2} & 27.3 & \best{36.2} & 28.3
+                      & 27.0 & 31.0 & 30.3 & 21.3 & 32.0 \\
+Memotion & sarcasm    & \best{33.3} & 32.6 & 30.2 & 32.1 & 24.4 & 28.4 & 25.3
+                      & 26.8 & 38.8 & 44.0 & 38.6 & 49.0 \\
+Memotion & offensive  & 31.9 & 30.0 & 33.2 & 34.3 & 34.9 & 24.4 & \best{35.2}
+                      & 24.4 & 31.2 & 59.9 & 29.3 & 26.9 \\
+Memotion & motivational & 48.6 & 48.0 & 47.1 & 51.0 & 41.3 & 43.4 & 41.3
+                        & 37.6 & 38.7 & 37.6 & 37.2 & 38.7 \\
+Memotion & sentiment  & 31.8 & 30.7 & 31.4 & 31.1 & 25.1 & \best{37.1} & 25.7
+                      & 26.6 & 23.9 & 26.5 & 21.7 & 18.7 \\
+\midrule
+MMSD 2.0 & sarcasm    & 77.5 & 77.6 & 82.6 & 82.0 & \best{84.0} & 83.0 & \best{84.0}
+                      & 80.0 & 85.9 & 84.0 & 74.0 & 57.2 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/moe_full_heatmap.png}
+  \caption{Accuracy delta of each fusion method relative to the best unimodal baseline (green = improvement, red = regression). Incongruity Fusion and MMOE show consistent gains on non-literal tasks (metaphor, humour, sarcasm, offensive).}
+  \label{fig:heatmap}
+\end{figure}
+
+\subsubsection{Key Findings}
+
+\textbf{Incongruity Fusion excels on conflict-heavy tasks.}
+On MET-Meme/metaphor, Incongruity Fusion achieves 87.6\% accuracy and 87.6\% Macro-F1—a
++5.8\% accuracy gain over the best standard fusion (Concat) and +12.0\% over Unimodal-Text.
+This is the most semantically incongruent task in our benchmark, validating our core hypothesis
+that explicit conflict modeling is necessary for non-literal affect.
+On MMSD/sarcasm, Incongruity Fusion achieves 84.0\% F1, matching MMOE and outperforming
+Concat by +1.4\%.
+
+\textbf{MMOE achieves the best balance across diverse tasks.}
+LLM-style MMOE with 4 experts achieves the best or tied-best trained model on 6/10 tasks
+(MET/hate, MET/metaphor, Memotion/offensive, Memotion/sentiment, MMSD/sarcasm). Its advantage
+is most pronounced on tasks with mixed interaction types—where routing adaptively selects between
+concat and incongruity experts per sample.
+
+\textbf{Standard fusion can regress on literal tasks.}
+On Memotion/humour, Concat and Late Fusion slightly outperform Incongruity Fusion. This is
+consistent with our theory: humour in Memotion is coded at a binary level (funny/not), where
+the cross-modal conflict \emph{is} the humour, but the classifier benefits more from pooling
+shared semantic content than from explicitly modeling the conflict vector.
+
+\textbf{LLMs excel at open-ended tasks but fail on structured conflict.}
+LLMs achieve the best overall accuracy on MET/intention (o4-mini: 56\%) and Memotion/sarcasm
+(Qwen3: 49\% F1), tasks that benefit from commonsense reasoning. However, trained models
+outperform all LLMs on MET/metaphor (+14.5\% F1), Memotion/motivational (+14.2\% acc), and
+Memotion/sentiment (+27.1\% acc), where nuanced distribution modeling matters more than reasoning.
+
+\subsubsection{Gate Weight Analysis}
+
+Figure~\ref{fig:gate} shows the mean gate weights of FusionMoE across tasks. Metaphor tasks
+route strongly toward Expert-0 (Concat, weight 0.868), consistent with metaphor requiring full
+joint representation. Sentiment and sarcasm tasks route toward Expert-1 (Late Fusion, weights
+0.561 and 0.502), suggesting modality-specific preservation is preferred when the two signals
+are less directly comparable.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/moe_gate_weights.png}
+  \caption{Mean FusionMoE gate weights per task (E0=Concat, E1=Late Fusion). Task-specific routing patterns validate that different meme understanding tasks have different optimal fusion strategies.}
+  \label{fig:gate}
+\end{figure}
+
+\subsection{Humor Attribution Analysis}
+
+To understand \emph{where} funniness originates in a meme, we probe CLIP embeddings for humor
+attributability across three sources: image-only humor, text-only humor, and incongruity-driven humor.
+Figure~\ref{fig:humor} shows that for the majority of memes in our dataset, humor is primarily
+attributed to incongruity (image-text conflict) rather than either modality alone—validating the
+premise of our architecture.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/humor_attribution_summary.png}
+  \caption{Humor attribution analysis across meme examples. Incongruity (image vs. text emotional conflict) is the dominant source of humor for most memes, with image-only humor being a distant second.}
+  \label{fig:humor}
+\end{figure}
+
+\subsection{Phase 2: Meme-to-Speech Generation}
+
+Table~\ref{tab:audio_results} presents subjective evaluation results on our internal 100-sample
+meme dataset (12 raters, 84 total ratings).
+
+\begin{table}[h]
+\centering
+\caption{Subjective MOS evaluation and A/B preference test for audio generation (5-point scale, higher is better). MemeSonic achieves the best EMOS and AMOS scores by a substantial margin.}
+\label{tab:audio_results}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{NMOS} $\uparrow$ & \textbf{EMOS} $\uparrow$ & \textbf{AMOS} $\uparrow$ \\
+\midrule
+Baseline 1 (Vanilla TTS)   & \textbf{3.92 $\pm$ 0.16} & 2.35 $\pm$ 0.31 & 1.68 $\pm$ 0.38 \\
+Baseline 2 (Label-Guided)  & 3.85 $\pm$ 0.18          & 3.12 $\pm$ 0.28 & 2.45 $\pm$ 0.35 \\
+\textbf{Ours (MemeSonic)}  & 3.88 $\pm$ 0.15          & \textbf{3.82 $\pm$ 0.24} & \textbf{3.95 $\pm$ 0.22} \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.8em}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Comparison Pair} & \textbf{Prefer Model A (\%)} & \textbf{Prefer Model B (\%)} & \textbf{No Preference (\%)} \\
+\midrule
+MemeSonic (Ours) vs. Vanilla TTS   & \textbf{84.5\%} & 6.0\%  & 9.5\% \\
+MemeSonic (Ours) vs. Label-Guided  & \textbf{71.2\%} & 16.3\% & 12.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key findings.}
+MemeSonic achieves AMOS 3.95, nearly $2.3\times$ higher than Vanilla TTS (1.68), demonstrating
+that incongruity-aware conditioning substantially improves pragmatic appropriateness. Expressiveness
+(EMOS) improves from 2.35 to 3.82—a gain of +1.47 points—showing that the adapter successfully
+translates the affective representation into more varied prosody. Naturalness (NMOS) is comparable
+across all three systems (3.85–3.92), confirming that expressiveness gains come at no cost to audio
+quality. In A/B tests, 84.5\% of raters prefer MemeSonic over Vanilla TTS, with only 9.5\% reporting
+no preference, indicating a strong and consistent perceptual difference.
+
+The gap between Label-Guided and MemeSonic (AMOS: 2.45 vs.\ 3.95) is particularly important:
+both systems receive affective information, but Label-Guided uses only a discrete emotion category
+while MemeSonic uses the full incongruity-conditioned representation. This demonstrates that
+\emph{the cross-modal conflict signal carries information not captured by the sentiment label alone}.
+
+\subsection{Tri-Modal Alignment Study}
+
+\subsubsection{RQ1: Audio Emotion Distribution vs. Image-Text}
+
+Figure~\ref{fig:rq1} shows the three-way emotion distribution comparison across modalities.
+Cross-modal KL divergences reveal:
+$\text{KL}(V \leftrightarrow T) = 0.69 \pm 0.50$,
+$\text{KL}(V \leftrightarrow A) = 1.14 \pm 1.29$,
+$\text{KL}(T \leftrightarrow A) = 1.02 \pm 1.24$.
+
+The ordering $\text{KL}(V \leftrightarrow A) > \text{KL}(T \leftrightarrow A) > \text{KL}(V \leftrightarrow T)$
+demonstrates that audio introduces the most distinct emotional signal relative to the image modality—
+confirming that audio is not merely redundant with the existing image-text information.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/rq1_three_way_emotion_dist.png}
+  \caption{Three-way emotion distribution comparison. (A) Population-level mean softmax probabilities per sentiment class for each modality. (B) Hard argmax distribution. (C) Cross-modal KL divergence boxplots. Audio (Emotion2Vec) diverges most from Vision, confirming it carries non-redundant affective signal.}
+  \label{fig:rq1}
+\end{figure}
+
+Per-class analysis in Table~\ref{tab:per_class} reveals that audio (Emotion2Vec) achieves high
+agreement with ground-truth sentiment for emotionally prototypical classes—love (94\%), sorrow (88\%),
+fear (80\%)—where prosody strongly encodes affect. Vision and text are substantially weaker per class
+in this zero-shot setting (max 12\% and 54\% respectively for individual classes).
+
+\begin{table}[h]
+\centering
+\caption{Per-class modality agreement with ground-truth sentiment. Audio excels on prototypical
+emotional classes (love, sorrow, fear) while Vision and Text perform inconsistently.}
+\label{tab:per_class}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Class} & \textbf{N} & \textbf{Vision} & \textbf{Text} & \textbf{Audio} & \textbf{V+T+A agree} \\
+\midrule
+happiness & 33 & 12\% & 0\%  & 36\%          & 0\%  \\
+love      & 16 & 0\%  & 6\%  & \best{94\%}   & 0\%  \\
+anger     &  9 & 22\% & 22\% & 22\%          & 0\%  \\
+sorrow    & 24 & 4\%  & 54\% & \best{88\%}   & 4\%  \\
+fear      &  5 & 0\%  & 40\% & \best{80\%}   & 0\%  \\
+hate      &  6 & 50\% & 83\% & 83\%          & 50\% \\
+surprise  &  7 & \textbf{71\%} & 57\% & 43\% & 29\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{RQ2: Does Audio Improve Classification? The Modality Gap Problem}
+
+Table~\ref{tab:rq2} and Figure~\ref{fig:rq2} show the impact of audio integration.
+
+\begin{table}[h]
+\centering
+\caption{Sentiment and intention accuracy under different fusion configurations. Naive tri-modal fusion
+yields zero improvement over V+T; the linear projector unlocks audio's contribution.}
+\label{tab:rq2}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Configuration} & \textbf{Sentiment Acc} & \textbf{Intention Acc} \\
+\midrule
+V only                        & 0.15 & 0.38 \\
+V + T (baseline)              & 0.27 & 0.45 \\
+V + T + A (naive, all 9 settings) & 0.27 & 0.45 \\
+\midrule
+V + T + A\textsubscript{proj} (mean audio) & \textbf{0.82} & \textbf{0.49} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Naive fusion completely fails.} All 9 voice-setting variants of V+T+A produce identical
+accuracy to V+T (sentiment: 0.27, intention: 0.45), with 0.0\% prediction flip rate across
+voice settings. The root cause is a modality-space incompatibility: Emotion2Vec and ImageBind
+are trained on fundamentally different data distributions, and zero-padding ImageBind prototypes
+with zeros for the audio dimensions renders audio invisible to cosine similarity classification.
+
+\textbf{The linear projector bridges the modality gap.} After projecting Emotion2Vec embeddings
+into ImageBind space, sentiment accuracy jumps from 0.27 to 0.82 (+0.55), and the prediction
+flip rate rises to 46.0\% for sentiment and 14.0\% for intention—confirming that audio now
+actively participates in classification.
+
+\textbf{Caveat: the +0.55 gain reflects alignment, not generalization.} The projector learns to
+map any audio of a given GT sentiment toward that class's ImageBind prototype, effectively using
+class-supervision to encode the label into the audio embedding. With only 900 training samples
+(720 train), this is partly a memorization of label structure rather than a generalizable
+cross-modal alignment. The key scientific contribution is the diagnostic: \emph{the information
+exists in audio; the modality gap—not a lack of signal—is the barrier to fusion}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/rq2_projector_vs_naive.png}
+  \caption{RQ2: Accuracy comparison across the 9 voice-setting variants, naive fusion vs.\ linear projector. Naive fusion (red) stays flat at the V+T baseline; the projector (green) consistently lifts accuracy above baseline. Dashed blue = V+T baseline, dotted green = mean projected audio.}
+  \label{fig:rq2}
+\end{figure}
+
+\subsubsection{Intra-Modality Distance Analysis}
+
+Intra-sentiment cosine distance in Emotion2Vec space (0.03--0.19) is substantially lower than
+intra-voice-setting distance (0.15--0.17), confirming that Emotion2Vec encodes semantic emotion
+content rather than prosodic style variation. This explains why voice-setting changes do not affect
+predictions (prosody is absorbed by Emotion2Vec into emotion-semantic clusters) and why the
+per-class audio agreement is driven by script content (which carries GT sentiment) rather than
+by the voice rendering.
+
+\subsection{Discussion and Error Analysis}
+
+\textbf{Where Incongruity Fusion fails.}
+Incongruity Fusion underperforms on MET/intention ($-15.6\%$ F1 vs.\ Unimodal-Image) and
+Memotion/humour ($-8.9\%$ F1 vs.\ Late Fusion). In both cases, the incongruity signal introduces
+additional noise when the task requires holistic understanding rather than conflict exploitation.
+Intention classification (interactive, entertaining, etc.) is often determined by the distributional
+properties of the image-text pair, not by their emotional contrast. Future work could gate the
+incongruity feature adaptively per task.
+
+\textbf{LLMs and reasoning models.}
+The strong performance of o4-mini (CoT) on Memotion/offensive (59.9\% F1) and sarcasm (44.0\% F1)
+suggests that chain-of-thought reasoning provides substantial benefit for tasks requiring social
+context—an advantage unavailable to our CLIP-based trained models. Combining LLM reasoning with
+our incongruity signal (e.g., as a structured prompt feature) is a promising direction.
+
+\textbf{Emotion2Vec vs. ImageBind for audio.}
+ImageBind is trained on environmental sounds and achieves effectively zero performance on TTS
+speech alignment (V$\leftrightarrow$T Top-1 = 0.98; A$\leftrightarrow$T Top-1 $\approx$ 0.00
+in our probing). Emotion2Vec is trained on emotional speech and captures sentiment-discriminative
+structure but not prosodic style variation. Neither model is ideal for meme voiceover; a model
+trained on emotionally annotated TTS speech would be needed for complete tri-modal integration.

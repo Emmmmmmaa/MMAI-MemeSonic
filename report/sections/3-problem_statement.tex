@@ -1,0 +1,51 @@
+\section{Problem Statement}
+
+\paragraph{Notation.}
+Let a meme be a triplet $\mathcal{M} = (v, t, a)$ where $v \in \mathcal{V}$ is the image,
+$t \in \mathcal{T}$ is the overlaid text or caption, and $a \in \mathcal{A}$ is the synthesized
+voiceover audio. In the understanding phase (Phase 1), $a$ is absent; in the generation phase (Phase 2),
+$a$ is the output. Let $y^{(s)} \in \mathcal{Y}_s$ and $y^{(i)} \in \mathcal{Y}_i$ denote the ground-truth sentiment and intention labels respectively.
+
+\paragraph{Phase 1 — Affective Understanding.}
+Given $(v, t)$, we seek a function
+$f: \mathcal{V} \times \mathcal{T} \rightarrow \mathcal{Y}_s \times \mathcal{Y}_i$
+that correctly predicts sentiment and intention. Standard multimodal fusion defines:
+\begin{equation}
+  \hat{y} = \arg\max_y\; g\bigl(\phi_v(v),\, \phi_t(t)\bigr)
+\end{equation}
+where $\phi_v, \phi_t$ are frozen image and text encoders and $g$ is a fusion function. The key
+challenge is that for memes, $\phi_v(v)$ and $\phi_t(t)$ may point to \emph{opposite} regions of
+the emotion space, so naïve averaging suppresses rather than captures the affective content.
+
+We formalize the incongruity signal as:
+\begin{equation}
+  \delta(v,t) = \bigl\|\, p_v - p_t \,\bigr\|_1
+  \quad \in [0, 2]
+\end{equation}
+where $p_v, p_t \in \Delta^C$ are the per-modality emotion probability distributions over $C$
+sentiment classes, obtained by projecting each encoder output onto a set of emotion prototype vectors.
+A high $\delta$ indicates that image and text encode conflicting emotional content.
+
+\paragraph{Phase 2 — Expressive Audio Generation.}
+Given the fused affective representation $z = h(v, t, \delta) \in \mathbb{R}^d$ and a script
+$s$ derived from the meme text, we seek a TTS function
+$\Psi: \mathcal{T} \times \mathbb{R}^d \rightarrow \mathcal{A}$
+that synthesizes audio whose prosodic profile matches the meme's pragmatic intent—not just its text
+sentiment. The objective is:
+\begin{equation}
+  \Psi^* = \arg\max_\Psi\; \mathbb{E}_{(v,t,a^*)\sim\mathcal{D}}\bigl[\,
+    \text{sim}\bigl(\Psi(s,z),\; a^*\bigr) +
+    \lambda\cdot\text{AMOS}\bigl(\Psi(s,z)\bigr)
+  \bigr]
+\end{equation}
+where $a^*$ is a pseudo ground-truth audio (closed-source TTS output), $\text{sim}(\cdot,\cdot)$ is
+embedding cosine similarity, and AMOS is the human appropriateness rating.
+
+\paragraph{Tri-Modal Alignment Study (RQ).}
+For the diagnostic study, we additionally ask: given $a$, does audio contribute non-redundant
+affective information to the prediction of $y^{(s)}$?
+\begin{equation}
+  \text{RQ:}\quad \text{Acc}\bigl(f(v,t,a)\bigr) \overset{?}{>} \text{Acc}\bigl(f(v,t)\bigr)
+\end{equation}
+and whether the failure of naive tri-modal fusion is attributable to a modality-space mismatch rather
+than an absence of signal in $a$.

@@ -1,0 +1,57 @@
+\section{Introduction}
+
+Memes are among the most prolific forms of digital communication, yet they remain deeply challenging
+for multimodal AI. Unlike image-caption pairs where visual and textual content reinforce each other,
+memes deliberately exploit \emph{incongruity}—a serene image paired with a desperate caption, a
+cheerful face accompanying nihilistic text. This cross-modal conflict is not noise to be filtered; it is
+the semantic mechanism through which humor, sarcasm, and irony are constructed. As a result, standard
+multimodal models that assume or enforce cross-modal agreement systematically fail on meme affect.
+
+The challenge compounds when we ask: \emph{how should a meme sound?} Human narrators instinctively
+adjust pitch, pace, and emotional coloring when reading meme text aloud—leaning into irony,
+exaggerating deadpan delivery, or escalating expressive intensity to match the visual absurdity. Current
+text-to-speech (TTS) systems have no access to this pragmatic context; they generate audio from text
+semantics alone, missing the affective layer encoded in the image-text relationship. This produces audio
+that is semantically correct but expressively hollow—natural in isolation, inappropriate for the meme.
+
+A third, underexplored dimension is the audio modality itself: once a voiced meme exists, does the
+prosodic rendering add information beyond what image and text already communicate? Do different
+emotional renderings of the same script change how viewers perceive sentiment and intention? These
+questions have practical implications for accessible content, meme retrieval, and affective computing,
+yet no prior work has systematically studied tri-modal (image, text, audio) interaction in the meme domain.
+
+\textbf{In this paper}, we introduce \textbf{MemeSonic}, a unified framework that addresses meme
+understanding and expressive audio generation jointly. Our contributions are:
+
+\begin{enumerate}
+  \item \textbf{Explicit Affect Decomposition.} We decompose meme understanding into independent
+    per-modality emotion distributions and compute a continuous \emph{incongruity score} that
+    quantifies cross-modal conflict. This turns the incongruity—previously treated as noise—into an
+    explicit, differentiable signal available throughout the pipeline.
+
+  \item \textbf{Incongruity-Aware MMOE Fusion.} We propose a Mixture-of-Experts fusion mechanism
+    whose router is conditioned on the incongruity signal. Three expert strategies handle distinct
+    interaction types: Redundancy (Concat), Uniqueness (Late Fusion), and Synergy (Incongruity
+    Fusion). This is fundamentally different from standard MoE systems that route on task difficulty
+    or data statistics; our router encodes the \emph{semantic relationship} between modalities.
+
+  \item \textbf{Meme-to-Speech Pipeline with Incongruity-to-Prosody Adapter.} We translate the
+    fused affective representation into expressive audio via an adapter that conditions TTS synthesis
+    on the incongruity score, enabling prosodic variance to reflect not just the text sentiment but
+    the cross-modal pragmatic intent of the meme.
+
+  \item \textbf{Tri-Modal Alignment Study.} We conduct a controlled experiment across a 3$\times$3
+    prosody grid (stability $\times$ style) to quantify whether audio modality contributes independent
+    affective information beyond image-text fusion. Using Emotion2Vec embeddings and a learned linear
+    projector to bridge modality spaces, we provide the first systematic evidence that (a) audio
+    carries non-redundant emotional signal (KL divergence: $V$\,$\leftrightarrow$\,$A$ = 1.14 vs.\
+    $V$\,$\leftrightarrow$\,$T$ = 0.69), and (b) the failure of naive fusion is a \emph{modality gap
+    problem}, not an absence of information.
+\end{enumerate}
+
+Across 10 classification tasks on three benchmarks (MET-Meme, Memotion 7k, MMSD 2.0), our
+Incongruity-Aware Fusion achieves the best Macro-F1 on tasks dominated by non-literal language
+(metaphor +87.6\%, humour +12.1\% over Late Fusion). Human evaluation of generated audio
+(n=84 ratings) shows MemeSonic achieves AMOS 3.95 vs.\ 1.68 for Vanilla TTS, with 84.5\%
+preference over the vanilla baseline—demonstrating that incongruity-aware conditioning substantially
+improves pragmatic appropriateness without sacrificing naturalness.

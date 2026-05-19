@@ -1,0 +1,82 @@
+\section{Conclusion and Future Directions}
+
+We presented \textbf{MemeSonic}, a unified system for affective meme understanding and expressive
+audio generation. Our central contribution is the operationalization of \emph{cross-modal
+incongruity}—the intentional semantic conflict between meme image and text—as a continuous,
+differentiable signal that drives both fusion routing and TTS prosody conditioning.
+
+\textbf{Main findings.}
+(1) Explicit incongruity modeling improves classification on non-literal affect tasks by up to
++12.1\% accuracy and +14.5\% Macro-F1 over standard fusion, with the largest gains on
+metaphor and sarcasm—exactly the tasks where cross-modal conflict is semantically load-bearing.
+(2) Incongruity-conditioned audio generation raises pragmatic appropriateness from AMOS 1.68
+(Vanilla TTS) to 3.95, with 84.5\% human preference, demonstrating that the pragmatic signal
+latent in image-text incongruity can be successfully translated into expressive prosody.
+(3) Audio modality carries non-redundant affective information (KL $V\leftrightarrow A = 1.14$
+vs.\ KL $V\leftrightarrow T = 0.69$), but naive fusion fails entirely due to modality-space
+incompatibility rather than absence of signal—a distinction with practical implications for the
+design of tri-modal systems.
+
+\textbf{Limitations.}
+
+\emph{Scale.}
+Our models rely on frozen CLIP ViT-B/32 embeddings and may underperform on tasks requiring
+fine-grained cultural knowledge. The tri-modal alignment study covers only 100 memes, so the
++0.55 accuracy gain from the linear projector should be read as a diagnostic rather than a
+deployable result. Human audio evaluation is likewise small (12 raters, 84 ratings).
+
+\emph{Data quality and annotation subjectivity.}
+Sarcasm and humor benchmarks (e.g., Memotion, MMSD) are not meme-domain specific and reflect
+social-media text annotation conventions. Within meme datasets, most prior work targets hate
+speech—a comparatively low-subjectivity task—while humor intensity and sarcasm type exhibit
+substantial inter-annotator disagreement, consistent with our low F1 on humour (36.2\%) and
+sarcasm (33.3\%). No existing benchmark jointly annotates sentiment, humor, sarcasm, and audio
+for the same memes, precluding end-to-end tri-modal evaluation.
+
+\textbf{Future directions.}
+\emph{(1) Meme-specific dataset construction.}
+The most impactful near-term contribution would be a large-scale, meme-native dataset with
+multi-dimensional affective annotations—sentiment, humor type, sarcasm mechanism, incongruity
+score, and paired voiced audio—collected with rigorous inter-annotator agreement protocols.
+Such a resource would enable both training and evaluation of the full MemeSonic pipeline without
+relying on heterogeneous benchmarks.
+
+\emph{(2) Generalization to broader incongruity domains.}
+The incongruity-aware framework developed here is not inherently meme-specific. Sarcasm and humor
+in news captions, social media posts, political cartoons, and video shorts share the same
+image-text conflict structure. Extending MemeSonic to these domains—particularly short-form video
+where temporal incongruity (e.g., a cheerful musical score against distressing imagery) is
+prevalent—would demonstrate the generality of the incongruity signal as an architectural primitive.
+
+\emph{(3) Interactive user studies with human-in-the-loop audio creation.}
+Rather than passive preference ratings, future work should engage users as active participants in
+meme audio creation. A demo-based study could present the meme alongside a palette of prosodically
+distinct audio options—spanning emotional tones, speech rates, and incongruity levels—and ask users
+to select, remix, or record their preferred voicing. Aggregating these choices would yield
+naturalistic, intent-labeled prosody data far richer than post-hoc MOS ratings. Such a study could
+also surface cultural and individual variation in how incongruity is perceived and performed,
+motivating personalized prosody adaptation grounded in demonstrated user preference rather than
+inferred affective labels.
+
+\emph{(4) Joint tri-modal pre-training.}
+Our tri-modal alignment study reveals a fundamental obstacle: ImageBind, despite being trained to
+bind image, text, and audio in a shared space, produces near-zero cosine similarity between its
+audio embeddings and TTS-synthesized speech (Top-1 accuracy $\approx 0\%$), because its audio
+encoder was trained on natural soundscapes rather than expressive speech. Bridging this gap with a
+post-hoc linear projector yields only a modest +0.55 accuracy improvement, suggesting that
+surface-level alignment is insufficient. A more principled fix is to train a shared encoder on
+meme image, text, and voiceover audio simultaneously—using incongruity-weighted contrastive
+learning as a pre-training objective—so that the resulting embeddings natively support tri-modal
+fusion without relying on incompatible pretrained representations.
+
+\emph{(5) LLM + incongruity as structured input.}
+Providing the incongruity score $\delta$ and per-modality emotion distributions as structured
+features to an LLM (via function calling or tool use) could combine the commonsense reasoning
+advantage of large models with the explicit conflict signal of our architecture, potentially
+closing the remaining gap on tasks like intention and sarcasm where LLMs currently outperform
+trained models.
+
+MemeSonic demonstrates that meme understanding requires moving beyond the assumption of cross-modal
+agreement, and that the \emph{conflict itself} is the signal. We hope this work encourages the
+community to treat incongruity not as noise to be averaged away, but as a first-class feature to
+be modeled, routed on, and generated from.

@@ -1,0 +1,65 @@
+\section{Experimental Methodology}
+
+\subsection{Datasets}
+
+\textbf{MET-Meme}~\citep{shi2024memeclip} is a bilingual meme dataset with rich annotations.
+We use the English subset filtered for quality, evaluating on four tasks:
+\textit{intention} (5 classes: Interactive, Expressive, Entertaining, Offensive, Other),
+\textit{sentiment} (7 classes: Happiness, Love, Anger, Sorrow, Fear, Hate, Surprise),
+\textit{hate} (4 intensity levels), and \textit{metaphor} (binary).
+Splits follow the official 70/15/15 train/val/test partition (approximately 1{,}400/300/340 samples).
+
+\textbf{Memotion 7k}~\citep{caton2023memotion} contains 6{,}992 memes with five annotation tasks:
+\textit{humour} (3 classes), \textit{sarcasm} (3 classes), \textit{offensive} (4 classes),
+\textit{motivational} (binary), and \textit{sentiment} (3 classes: positive/neutral/negative).
+We use splits of 5{,}593/699/700 for train/val/test.
+
+\textbf{MMSD 2.0}~\citep{mmsd2} is a refined multimodal sarcasm detection dataset with 22{,}482 memes
+(binary: sarcastic / non-sarcastic), split into 16{,}000/3{,}000/3{,}482.
+
+\textbf{Internal Dataset (Phase 2).}
+For audio generation evaluation, we construct a 100-sample subset from our annotated meme dataset with
+ground-truth sentiment and intention labels, stratified across 7 sentiment classes.
+Scripts are generated via GPT-4.1-mini conditioned on meme image and text.
+
+\subsection{Models and Baselines}
+
+\textbf{Phase 1 — Understanding.} We compare: (1) \textbf{Unimodal-Image} and
+\textbf{Unimodal-Text}, linear classifiers on frozen CLIP embeddings; (2) \textbf{Concat}, a
+2-layer MLP on concatenated CLIP embeddings; (3) \textbf{Late Fusion}, a weighted average of
+unimodal predictions; (4) \textbf{Incongruity Fusion}, our proposed Expert-S module in isolation;
+(5) \textbf{MULT}~\citep{tsai2019mult}, a cross-modal transformer baseline; (6) \textbf{FusionMoE},
+our 2-expert incongruity-gated MoE; and (7) \textbf{MMOE}, our full 3-expert system.
+We additionally compare against LLM zero-shot baselines: GPT-4o, Gemini-2.5-Flash, o4-mini (CoT),
+Gemini-2.5-Flash (CoT), and Qwen3-VL-30B (Thinking mode).
+
+\textbf{Phase 2 — Audio Generation.} We compare three systems:
+(1) \textbf{Baseline 1 (Vanilla TTS)}: ElevenLabs with default \texttt{voice\_settings}, no
+affective conditioning;
+(2) \textbf{Baseline 2 (Label-Guided TTS)}: ElevenLabs with \texttt{voice\_settings} manually
+mapped from the predicted sentiment label (e.g., happiness $\to$ low stability, high style);
+(3) \textbf{Ours (MemeSonic)}: ElevenLabs conditioned via our Incongruity-to-Prosody Adapter,
+with \texttt{voice\_settings} modulated by the incongruity score $\delta$.
+
+\textbf{Tri-Modal Study.} We generate a 3$\times$3 prosody grid (stability $\in\{0.2,0.5,0.8\}$
+$\times$ style $\in\{0.2,0.5,0.8\}$) for each of the 100 scripts, yielding 900 audio files.
+Emotion2Vec embeddings are extracted for all 900 files (iic/emotion2vec\_plus\_large, 1024-dim).
+The linear projector is trained on 720 samples (80\% split) and evaluated on 180.
+
+\subsection{Evaluation Metrics}
+
+Classification tasks are evaluated by \textbf{Macro-F1} (primary, given severe class imbalance)
+and Accuracy (secondary).
+Audio generation is evaluated by: \textbf{Pseudo-GT Similarity} (cosine similarity of Emotion2Vec
+embeddings against a closed-source TTS reference); a 1–5 MOS scale with three dimensions—
+\textbf{NMOS} (naturalness), \textbf{EMOS} (expressiveness), and \textbf{AMOS} (pragmatic
+appropriateness including irony and humor)—collected from 12 raters (n=84 ratings); and an
+\textbf{A/B Preference Test} between MemeSonic and each baseline.
+
+\subsection{Implementation Details}
+All CLIP-based models use the frozen \texttt{ViT-B/32} backbone from OpenAI.
+Classifiers are trained with AdamW ($\text{lr}=5\times10^{-4}$, weight decay $10^{-3}$) for 15
+epochs with early stopping on Macro-F1.
+The incongruity temperature $\tau=0.05$ for emotion prototype softmax.
+The linear projector uses AdamW ($\text{lr}=10^{-3}$) with cosine LR schedule for 300 epochs.
+All experiments run on CPU (MacBook Pro M2); no GPU is required for inference.

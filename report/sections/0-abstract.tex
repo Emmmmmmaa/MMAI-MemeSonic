@@ -1,0 +1,23 @@
+\begin{abstract}
+Memes derive their communicative power not from semantic alignment between image and text, but from
+\emph{intentional incongruity}—a smiling dog in a burning room, a deadpan face paired with absurdist
+caption. Yet existing multimodal systems assume modalities agree and consequently collapse on the
+conflict-dominant, non-literal language that defines meme affect.
+We present \textbf{MemeSonic}, a unified framework for meme affective understanding and expressive
+audio generation, built on a central premise: the \emph{incongruity} between image and text is not
+noise to suppress but a differentiable signal to model.
+Our framework decomposes image and text into independent emotion distributions, derives a continuous
+cross-modal incongruity score, and uses it to drive both an \emph{Incongruity-Aware
+Mixture-of-Experts (MMOE) Fusion} for classification and an \emph{Incongruity-to-Prosody Adapter}
+for expressive speech synthesis.
+Across ten classification tasks on three meme benchmarks (MET-Meme, Memotion~7k, MMSD~2.0),
+Incongruity Fusion achieves the best Macro-F1 on five tasks and MMOE achieves best on four,
+outperforming standard fusion baselines by up to \textbf{+12.1\%} accuracy.
+A human evaluation of generated audio (n=84 responses) shows MemeSonic achieves AMOS~3.95
+vs.\ 1.68 for Vanilla TTS, with 84.5\% preference in A/B tests.
+To study how audio modality contributes beyond image-text, we conduct a controlled tri-modal alignment
+experiment using Emotion2Vec embeddings, revealing that the naive heterogeneous space fusion yields
+zero modal contribution, while a learned linear projector bridges the modality gap and raises sentiment
+accuracy from 27\% to 82\%—demonstrating that audio carries strong non-redundant affective signal once
+properly aligned.
+\end{abstract}

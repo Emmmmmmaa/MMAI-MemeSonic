@@ -14,6 +14,8 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
+audio/
+output/
 
 # Generated audio outputs
 *.mp3

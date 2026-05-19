@@ -1,0 +1,78 @@
+\documentclass{article}
+
+% NeurIPS 2024 style — download neurips_2024.sty from:
+% https://neurips.cc/Conferences/2024/PaperInformation/StyleFiles
+\usepackage[final]{neurips_2024}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{wrapfig}
+\usepackage{natbib}
+\usepackage{cleveref}
+
+% ── Colour helpers ─────────────────────────────────────────────────────────────
+\definecolor{bestcol}{RGB}{198,239,206}
+\definecolor{warncolor}{RGB}{255,235,156}
+\newcommand{\best}[1]{\cellcolor{bestcol}\textbf{#1}}
+\newcommand{\second}[1]{\cellcolor{warncolor}{#1}}
+
+% ── Title & authors ────────────────────────────────────────────────────────────
+\title{MemeSonic: Unified Affective Meme Audio Generation\\and Tri-Modal Alignment}
+
+\author{%
+  Yiqiao Huang \And Hongbee Park \And Ruyi Yang \\[2pt]
+  MIT MAS.S60 / 6.S985 — Multimodal AI, Spring 2026
+}
+
+\begin{document}
+\maketitle
+
+% ── Pipeline overview figure ───────────────────────────────────────────────────
+% Place the pipeline diagram (from slide p.9) as figures/pipeline.png
+\begin{figure}[t]
+  \centering
+  % Uncomment once figures/pipeline.png is added:
+  % \includegraphics[width=\linewidth]{figures/pipeline.png}
+  \fbox{\parbox{0.95\linewidth}{\centering\vspace{2em}
+    \textit{[Figure: MemeSonic system overview — Meme Input $\to$ CLIP Encoders $\to$
+    Incongruity Score $\to$ MMOE Routing $\to$ Labels \& Fused Embedding $\to$
+    LLM Adapter / Open-source Adapter $\to$ Synthesized Audio]}
+  \vspace{2em}}}
+  \caption{MemeSonic system overview. The framework decomposes image and text into independent
+  emotion distributions, computes a cross-modal incongruity score, routes each sample to the
+  appropriate fusion expert, and translates the fused representation into prosodically expressive
+  audio via two generation paths.}
+  \label{fig:pipeline}
+\end{figure}
+
+% ── Sections ───────────────────────────────────────────────────────────────────
+\input{sections/0-abstract}
+\input{sections/1-introduction}
+\input{sections/2-related_work}
+\input{sections/3-problem_statement}
+\input{sections/4-method}
+\input{sections/5-experiments}
+\input{sections/6-results}
+\input{sections/7-conclusion}
+\input{sections/8-appendix}
+
+% ── References ─────────────────────────────────────────────────────────────────
+\bibliographystyle{abbrvnat}
+\bibliography{references}
+
+\end{document}
