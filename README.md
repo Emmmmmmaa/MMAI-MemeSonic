@@ -4,7 +4,10 @@ Memes are multimodal — but their meaning doesn't come from image and text *agr
 
 MemeSonic is built around that insight: **incongruity is the signal, not noise.**
 
-[Demo 1](https://tinyurl.com/4schzjb5) · [Demo 2](https://gemini.google.com/share/44df652817ed)
+**Demo:** [MemeSonic — meme-to-speech pipeline](https://tinyurl.com/4schzjb5)
+
+Future directions: [multimodal meme understanding](https://gemini.google.com/share/44df652817ed) · [LivePortrait — animated memes](https://github.com/KlingAIResearch/LivePortrait)
+
 
 ![MemeSonic Pipeline](img/pipeline.png)
 
