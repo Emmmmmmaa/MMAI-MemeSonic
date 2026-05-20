@@ -46,6 +46,9 @@ data/
 # Paper (managed separately)
 report/
 
+# Generated outputs
+outputs/
+
 # Slides
 *.pptx
 
