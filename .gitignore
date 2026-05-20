@@ -14,12 +14,13 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
-audio/
-output/
 
 # Generated audio outputs
 *.mp3
 *.wav
+audio/outputs/
+
+# Archives
 *.zip
 
 # Node (demo)
@@ -27,9 +28,20 @@ node_modules/
 demo/node_modules/
 demo/dist/
 
-# Large data / model weights
+# Model weights & embeddings (large binary artifacts)
 *.bin
 *.pt
 *.pth
 *.ckpt
 *.safetensors
+*.npz
+image-text-fusion/artifacts/
+
+# Dataset images (tracked via HuggingFace)
+data/images/
+
+# Slides
+*.pptx
+
+# MultiBench submodule (external library)
+image-text-fusion/MultiBench/

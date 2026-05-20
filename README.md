@@ -1,59 +1,52 @@
 # MemeSonic
 
-**MemeSonic: Giving Memes a Voice Through Affective Multimodal Generation**
-A multimodal prototype that interprets the mood and meaning of a meme image and generates matching expressive audio.
+Memes are multimodal — but their meaning doesn't come from image and text *agreeing*. It comes from them *fighting*. A cheerful dog sitting in a burning room saying "this is fine" is funny *because* the image and text contradict each other.
 
-**What is MemeSonic?**
+MemeSonic is built around that insight: **incongruity is the signal, not noise.**
 
-Internet memes are multimodal expressions where meaning depends on the interplay of image, text, and implicit cultural context. Yet memes remain silent — their tone, irony, and affect exist only in the reader's head.
+[Demo 1](https://tinyurl.com/4schzjb5) · [Demo 2](https://gemini.google.com/share/44df652817ed)
 
-MemeSonic gives memes a voice. Given a static meme image, the system:
-
-1. **Interprets** the meme's mood, tone, and meaning using a multimodal LLM
-2. **Surfaces** that interpretation as an explicit, human-readable intermediate layer (e.g., sentiment tag, voice script)
-3. **Generates** expressive voice-based audio that matches how the meme is read
-
-Rather than hiding interpretation inside a latent space, MemeSonic makes affective reading visible and steerable — the same intermediate layer can also support mood-based meme retrieval.
-
-## Prototype
-
-[Try the prototype](https://gemini.google.com/share/12a097b0d1bb)
-
- ![MemeSonic Pipeline](img/flow.png)
-
-
----
-## System Architecture
-
-**Pipeline**
-
-![MemeSonic Pipeline](img/meme%20pipeline.png)
-
-- **Multimodal sentiment fusion** — visual + textual encodings → structured affective representation
-- **Sentiment-conditioned audio generation** — audio reflecting the meme's intent (irony, absurdity, triumph)
-- **Cross-modal alignment** — vision–language–audio alignment as training objective and evaluation criterion
-- **Retrieval** — text-based lookup returning memes with generated audio
+![MemeSonic Pipeline](report/figures/pipeline.png)
 
 ---
 
-**Gaps**
-- Existing models struggle to decode semantic irony and cultural nuance in memes
-- Dynamic meme generation, especially the acoustic dimension, remains largely unaddressed
+## Phase 1 — Give memes a voice
 
-**Applications**
-- Automatic audio generation for memes conditioned on visual + textual content
-- Text-based retrieval of audio-enriched memes
+We train a prosody adapter to read the emotional subtext of a meme (not just its surface text) and generate expressive speech that matches the tone — sarcastic, triumphant, deadpan. The resulting audio externalizes affect that normally only lives in the reader's head.
 
+**Notebooks:**
+- [audio/Audio_Gen_Trimodal_Align.ipynb](audio/Audio_Gen_Trimodal_Align.ipynb) — prosody adapter, TTS generation, MOS eval
+- [audio/adapter1_memotion_colab.ipynb](audio/adapter1_memotion_colab.ipynb) — adapter training on Memotion
 
-**Current Challenges**
-- Irony and cultural nuance remain hard for vision-language models to capture
-- No large-scale labeled dataset for meme sentiment with audio; we construct our own
-- Cross-modal alignment across three modalities is technically demanding and hard to evaluate
+---
+
+## Phase 2 — Model the conflict
+
+Standard multimodal fusion assumes image and text are aligned. For memes, that assumption breaks. We explicitly compute an *incongruity score* $\delta$ between image and text emotion distributions, then route each meme through the fusion strategy it actually needs: pooling for literal memes, conflict modeling for ironic ones. This is FusionMoE.
+
+**Notebooks:**
+- [image-text-fusion/incongruity_aware_fusion.ipynb](image-text-fusion/incongruity_aware_fusion.ipynb) — incongruity score $\delta$, Incongruity Fusion, all trained baselines
+- [image-text-fusion/fusion_moe.ipynb](image-text-fusion/fusion_moe.ipynb) — FusionMoE 3-expert router, training across all 10 tasks
+- [image-text-fusion/llm_baseline_eval.ipynb](image-text-fusion/llm_baseline_eval.ipynb) — LLM zero-shot baselines (GPT-4o, Gemini, o4-mini, Qwen3)
+- [image-text-fusion/llava_probing.ipynb](image-text-fusion/llava_probing.ipynb) — LLaVA probing for affective representation
+- [image-text-fusion/eda/meme_dataset.ipynb](image-text-fusion/eda/meme_dataset.ipynb) — dataset EDA, label distributions, incongruity statistics
+
+---
+
+## Phase 3 — Does audio help understanding?
+
+We loop the generated speech back in as a third modality. Naively fusing it does nothing — the embedding spaces are incompatible. A single learned projector fixes that, lifting sentiment accuracy from 27% to 82%. The audio was carrying signal the whole time; the barrier was representation mismatch.
+
+**Notebooks:**
+- [audio/Audio_Modal_Contribution.ipynb](audio/Audio_Modal_Contribution.ipynb) — Emotion2Vec projector, tri-modal alignment study
+<!-- - [image-text-fusion/colearning_audio.ipynb](image-text-fusion/colearning_audio.ipynb) — audio–vision co-learning experiments -->
 
 ---
 
 ## Homeworks
 
-- HW1: [MMAI HW1 — Music & Motion Data Preparation](homework/homework1/README.md)
-- HW2: [HW2: Multimodal Fusion and Alignment — MET Meme](homework/homework2/README.md)
-- HW3: [Homework 3: Fine-Tuning Vision-Language Models for Meme Classification](homework/homework3/README.md)
+- HW1: [Music & Motion Data Preparation](homework/homework1/README.md)
+- HW2: [Multimodal Fusion and Alignment — MET Meme](homework/homework2/README.md)
+- HW3: [Fine-Tuning VLMs for Meme Classification](homework/homework3/README.md)
+- HW4: [GRPO Fine-tuning for Meme Intention](homework/homework4/README.md)
+- HW5: [AI Agents — Meme-to-Audio Agent](homework/homework5/README.md)

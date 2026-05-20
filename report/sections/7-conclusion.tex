@@ -1,73 +1,21 @@
+
+
+
 \section{Conclusion}
 
-We presented \textbf{MemeSonic}, a three-phase framework for meme affective understanding and
-expressive audio generation. The central insight is that cross-modal incongruity—the intentional
-conflict between meme image and text—is not noise to suppress but a differentiable signal to model.
-We operationalize it as a continuous score $\delta$ that drives both fusion routing and TTS prosody
-conditioning.
+We presented \textbf{MemeSonic}, a framework for meme affective understanding and expressive voiceover generation. The central insight is that image-text incongruity is not noise, but a structural cue for understanding meme affect and pragmatic intent. MemeSonic models this cue explicitly and further externalizes implicit pragmatic affect as expressive speech.
 
-\emph{(1) Incongruity-gated fusion improves non-literal affect classification.}
-FusionMoE improves Macro-F1 by up to +14.5\% over standard fusion on tasks where cross-modal
-conflict is semantically load-bearing (metaphor, sarcasm). On literal tasks, simpler fusion
-suffices—confirming that incongruity-aware routing is beneficial precisely where the conflict
-signal carries meaning.
+\emph{(1) Image-text incongruity improves meme affect understanding.}
+Compared with standard multimodal fusion, MemeSonic better handles cases where image and text convey conflicting signals, especially in sarcasm, humor, and non-literal affect. This shows that meme meaning often emerges not from either modality alone, but from the tension between them.
 
-\emph{(2) Incongruity conditioning produces more expressive and appropriate audio.}
-MemeSonic achieves AMOS 3.95 vs.\ 1.68 for Vanilla TTS (84.5\% human preference), demonstrating
-that $\delta$ carries prosodic nuance beyond what discrete sentiment labels encode. The gap between
-Label-Guided TTS and MemeSonic further confirms that coarse labels collapse the nuance that
-incongruity preserves.
+\emph{(2) Expressive voiceover generation externalizes pragmatic affect.}
+MemeSonic achieves the best EMOS and AMOS scores while maintaining comparable speech naturalness. This suggests that the learned prosody prompt adapter, conditioned on affect labels and image-text context, produces more meme-aligned delivery than direct label-guided or vanilla TTS.
 
-\emph{(3) Audio carries non-redundant affective signal, but alignment is critical.}
-A learned linear projector lifts tri-modal sentiment accuracy from 27\% to 82\%, revealing that
-the barrier to audio integration is modality-space incompatibility, not absence of affective
-signal. Naive fusion yields zero improvement—the information exists in audio; it just needs to be
-properly aligned.
+\emph{(3) Generated speech provides non-redundant affective supervision.}
+By using generated voiceover as a pseudo affective modality, MemeSonic introduces an additional supervisory signal for meme understanding. Our diagnostic tri-modal study suggests that affective information exists in speech.
 
 \paragraph{Limitations.}
+MemeSonic still relies on general-purpose vision and audio encoders, which may miss meme-specific visual semantics and expressive speech cues. In addition, humor, sarcasm, and pragmatic affect are inherently subjective, and existing datasets rarely provide aligned image, text, affect, intention, and audio annotations for the same memes. Our experiments should therefore be read as a focused validation of the proposed direction rather than a complete solution.
 
-\emph{(1) Encoder and scale.}
-Our pipeline relies on CLIP ViT-B/32, which may miss internet-specific visual semantics, and the
-tri-modal study covers only 100 memes and should be read as diagnostic. Human audio evaluation is
-similarly small (12 raters, 84 ratings).
-
-\emph{(2) Evaluation subjectivity.}
-Humor and sarcasm remain inherently subjective and audience-dependent. No existing dataset jointly
-annotates sentiment, humor, and audio for the same memes, preventing end-to-end tri-modal
-evaluation. More robust protocols should combine human preference, contextual relevance, and
-safety-aware analysis rather than relying on single-axis MOS ratings.
-
-\paragraph{Future work.}
-
-\emph{(1) Meme-native dataset.}
-The most impactful near-term contribution would be a large-scale dataset with multi-dimensional
-affect annotations and paired audio. Such a resource would enable both training and evaluation of
-the full MemeSonic pipeline without relying on heterogeneous benchmarks designed for adjacent tasks.
-
-\emph{(2) Broader incongruity domains.}
-The incongruity signal is not meme-specific. News captions, political cartoons, and short-form
-video share the same image-text conflict structure. Extending MemeSonic to these domains—
-particularly short-form video where temporal incongruity is prevalent—would demonstrate the
-generality of the incongruity signal as an architectural primitive.
-
-\emph{(3) Joint tri-modal pre-training.}
-Our tri-modal alignment study reveals a fundamental obstacle: ImageBind produces near-zero cosine
-similarity between its audio embeddings and TTS-synthesized speech (Top-1 accuracy $\approx 0\%$),
-because its audio encoder was trained on natural soundscapes rather than expressive speech.
-Bridging this gap with a post-hoc linear projector is a workaround. A more principled fix is to
-train a shared encoder on meme image, text, and voiceover audio simultaneously—using
-incongruity-weighted contrastive learning as a pre-training objective—so that the resulting
-embeddings natively support tri-modal fusion.
-
-\emph{(4) LLM + incongruity as structured input.}
-Providing the incongruity score $\delta$ and per-modality emotion distributions as structured
-features to an LLM (via function calling or tool use) could combine the commonsense reasoning
-advantage of large models with the explicit conflict signal of our architecture, potentially
-closing the remaining gap on tasks like intention and sarcasm where LLMs currently outperform
-trained models.
-
-\emph{(5) Retrieval, editing, and personalization.}
-The same semantic--affective representation used for generation could support downstream
-applications: retrieving memes by affective profile, editing prosody to shift perceived irony, or
-personalizing audio output to user intent—all while preserving the original cross-modal incongruity
-as a structural constraint.
+\paragraph{Future Work.}
+A key next step is to build meme-native multimodal datasets with fine-grained annotations for affect, intention, humor, and paired voiceover audio. Such resources would support end-to-end training and evaluation of the full pipeline. Another direction is joint tri-modal pre-training, where image, text, and speech are aligned in a shared representation space from the start. Finally, image-text incongruity is not meme-specific: news captions, political cartoons, and short-form videos also rely on cross-modal tension. Extending MemeSonic to these domains would further test the generality of incongruity as an affective signal.

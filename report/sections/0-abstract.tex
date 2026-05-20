@@ -1,26 +1,7 @@
 \begin{abstract}
-Memes derive their communicative power not from semantic alignment between image and text, but from
-\emph{intentional incongruity}—a smiling dog in a burning room, a deadpan face paired with absurdist
-caption. Yet existing multimodal systems assume modalities agree and consequently collapse on the
-conflict-dominant, non-literal language that defines meme affect.
-We present \textbf{MemeSonic}, a unified framework for meme affective understanding and expressive
-audio generation, built on a central premise: the \emph{incongruity} between image and text is not
-noise to suppress but a differentiable signal to model.
-To capture this signal, our framework first introduces independent multimodal encoding: image and text
-are each mapped to their own emotion distributions, and a continuous cross-modal incongruity score is
-derived from their divergence—making the tension between modalities an explicit, learnable feature
-rather than an artifact to discard.
-This incongruity score then drives \emph{Incongruity-Aware Mixture-of-Experts (MMOE) Fusion} for
-affective classification. Across ten tasks on three meme benchmarks (MET-Meme, Memotion~7k,
-MMSD~2.0), Incongruity Fusion achieves the best Macro-F1 on five tasks and MMOE achieves best on
-four, outperforming standard fusion baselines by up to \textbf{+12.1\%} accuracy.
-Beyond classification, we propagate the same incongruity signal into audio generation via an
-\emph{Incongruity-to-Prosody Adapter}, enabling expressive speech synthesis that mirrors the
-affective tension of the source meme. Human evaluation (n=84) shows MemeSonic achieves AMOS~3.95
-vs.\ 1.68 for Vanilla TTS, with 84.5\% preference in A/B tests.
-Finally, to assess whether audio carries affective signal beyond image and text, we conduct a
-controlled tri-modal alignment experiment using Emotion2Vec embeddings, finding that naive
-heterogeneous fusion yields zero modal contribution, while a learned linear projector bridges the
-modality gap and raises sentiment accuracy from 27\% to 82\%—confirming that audio is a
-non-redundant affective modality once properly aligned.
+Conventional multimodal affect understanding assumes that image and text provide complementary or semantically aligned signals. Memes fundamentally violate this assumption: their emotional meaning often arises from \emph{incongruity} between modalities, such as sarcastic text paired with a cheerful image. We argue that image-text incongruity is not noise, but a core signal for understanding meme emotion and pragmatic intent.
+
+We present \textbf{MemeSonic}, an \textbf{incongruity-aware affective understanding framework} for memes. First, we explicitly model cross-modal incongruity by projecting image and text into independent emotion distributions and computing a continuous \emph{incongruity score} $\delta$. Based on this signal, we formulate meme understanding as an incongruity-aware reasoning problem and introduce \textbf{FusionMoE}, a mixture-of-experts architecture that dynamically adapts fusion strategies for redundancy, complementarity, and irony-dominant cases. Across ten tasks on three meme benchmarks (MET-Meme, Memotion~7k, MMSD~2.0), FusionMoE outperforms conventional fusion baselines by up to \textbf{+14.5\% Macro-F1}, with the largest gains on sarcasm and metaphor understanding.
+
+Finally, we investigate whether expressive speech can serve as a \textbf{pseudo affective modality} for meme understanding. Since memes rarely contain annotated emotional voiceovers, we introduce synthesized expressive speech as a form of privileged affective supervision, providing cues about \emph{how the meme should be spoken}. A controlled tri-modal alignment study using Emotion2Vec embeddings shows that naive heterogeneous fusion yields negligible audio contribution, while a learned modality projector improves sentiment accuracy from \textbf{27\% to 82\%}. These results suggest that expressive speech captures affective information beyond image and text alone, demonstrating the value of externalizing multimodal incongruity into an explicit auditory signal for affective meme understanding.
 \end{abstract}

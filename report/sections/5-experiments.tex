@@ -1,61 +1,39 @@
 \section{Experimental Methodology}
 
-\subsection{Datasets and Modalities}
+\subsection{Datasets}
 
-All three datasets provide meme images paired with overlaid or associated text captions as input
-modalities. Annotations are categorical affect labels collected via crowdsourcing.
+We evaluate on three benchmarks spanning ten tasks (Table~\ref{tab:dataset_stats}).
+\textbf{MET-Meme}~\citep{metmeme} covers intention, sentiment, hate, and metaphor classification
+(\textasciitilde1,400/300/340 train/val/test).
+\textbf{Memotion 7k}~\citep{chhavi2020memotion} covers humour, sarcasm, offensiveness,
+motivational, and sentiment tasks (random 80/10/10 split, seed 42).
+\textbf{MMSD 2.0}~\citep{mmsd2} is a binary sarcasm detection benchmark
+(16,000/3,000/3,482 official split).
+All datasets provide meme images paired with overlaid text captions as input.
 
-\textbf{MET-Meme}~\citep{shi2024memeclip}: English subset of a bilingual meme dataset
-(\textasciitilde1,400/300/340 train/val/test). Four tasks: \textit{intention} (5 classes),
-\textit{sentiment} (7 classes), \textit{hate} (4 intensity levels), \textit{metaphor} (binary).
+\subsection{Baselines}
 
-\textbf{Memotion 7k}~\citep{caton2023memotion}: 6,992 memes split 5,593/699/700. Five tasks:
-\textit{humour}, \textit{sarcasm} (3 classes each), \textit{offensive} (4 classes),
-\textit{motivational} (binary), \textit{sentiment} (3 classes: positive/neutral/negative).
+\textbf{Phase 1.} Vanilla TTS (no affect conditioning) and Label-Guided TTS (discrete label
+$\to$ fixed prosody mapping) serve as baselines for MemeSonic.
 
-\textbf{MMSD 2.0}~\citep{mmsd2}: 22,482 memes for binary sarcasm detection, split 16,000/3,000/3,482.
+\textbf{Phase 2.} Trained baselines: Unimodal-Image, Unimodal-Text, Concat Fusion, Late Fusion,
+MULT. LLM zero-shot baselines: GPT-4o, Gemini-2.5-Flash, o4-mini (CoT),
+Gemini-2.5-Flash (CoT), Qwen3-VL-30B (Thinking). Our methods: Incongruity Fusion (Expert-S
+in isolation) and FusionMoE (full 3-expert system).
 
-
-\subsection{Models and Baselines}
-
-\textbf{Phase 1 — Audio Generation.} We compare three systems:
-\begin{itemize}
-  \item \textbf{Vanilla TTS}: ElevenLabs with default \texttt{voice\_settings}, no affective conditioning.
-  \item \textbf{Label-Guided TTS}: ElevenLabs with \texttt{voice\_settings} manually mapped from the predicted sentiment label (e.g., happiness $\to$ low stability, high style).
-  \item \textbf{MemeSonic}: ElevenLabs conditioned via our Incongruity-to-Prosody Adapter, with \texttt{voice\_settings} modulated by the incongruity score $\delta$.
-\end{itemize}
-
-\textbf{Phase 2 — Multimodal Fusion.}
-\begin{itemize}
-  \item \textbf{Baselines}: Unimodal-Image, Unimodal-Text, Concat, Late Fusion,
-  MULT, and LLM zero-shot (GPT-4o, Gemini-2.5-Flash, o4-mini (CoT),
-  Gemini-2.5-Flash (CoT), Qwen3-VL-30B (Thinking mode)).
-  \item \textbf{Ours}: Incongruity Fusion (Expert-S in isolation) and FusionMoE (full 3-expert system).
-\end{itemize}
-
-\textbf{Phase 3 — Tri-Modal Study.} To test whether audio carries affective signal beyond image
-and text, we use the generated audio as pseudo ground truth. For each of 100 meme scripts,
-we synthesize 9 audio variants by sweeping ElevenLabs prosody settings across a
-$3\times3$ grid (stability $\times$ style $\in \{0.2, 0.5, 0.8\}^2$), giving 900 files in total.
-We extract Emotion2Vec embeddings for each file, then train a linear projector to align audio
-embeddings into a shared affective space, using an 80/20 train/test split.
+\textbf{Phase 3.} For each of 100 memes, 9 audio variants are synthesized by sweeping ElevenLabs
+prosody settings over a $3\times3$ grid (stability $\times$ style $\in \{0.2,0.5,0.8\}^2$),
+giving 900 files. Emotion2Vec embeddings are extracted and a linear projector is trained
+to align audio into a shared affective space (80/20 split).
 
 \subsection{Evaluation Metrics}
 
-\textbf{Phase 1 — Audio Generation.} We evaluate along three dimensions:
-\begin{itemize}
-  \item \textbf{Pseudo-GT Similarity}: cosine similarity of Emotion2Vec embeddings between
-  generated audio and a closed-source TTS reference.
-  \item \textbf{MOS}: a 1--5 scale across three sub-dimensions collected from 12 raters
-  (n=84 ratings total): \textbf{NMOS} (naturalness), \textbf{EMOS} (expressiveness), and
-  \textbf{AMOS} (pragmatic appropriateness, including irony and humor).
-  \item \textbf{A/B Preference Test}: pairwise preference between MemeSonic and each baseline.
-\end{itemize}
+\textbf{Phase 1.} Human MOS on three axes (12 raters, 84 ratings): \textbf{NMOS} (naturalness),
+\textbf{EMOS} (expressiveness), \textbf{AMOS} (pragmatic appropriateness). Pairwise A/B
+preference tests complement the MOS scores.
 
-\textbf{Phase 2 \& 3 — Classification.} {Macro-F1} and Accuracy.
-
+\textbf{Phases 2 \& 3.} Macro-F1 (primary) and Accuracy.
 
 \subsection{Implementation Details}
 
-Full hyperparameter settings for all three phases are reported in Appendix~\ref{sec:impl_details}.
-
+Full hyperparameter tables for all three phases are in Appendix~\ref{sec:impl_details}.

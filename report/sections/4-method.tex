@@ -1,96 +1,92 @@
 \section{Proposed Method}
 
-MemeSonic is organized into three phases (Figure~\ref{fig:pipeline}): (1) Meme-to-Speech Generation,
-which synthesizes expressive audio from the meme; (2) Incongruity-Aware Multimodal Fusion, which
-classifies meme affect using image and text; and (3) Tri-Modal Alignment, which asks whether the
-generated audio carries additional affective signal beyond image and text.
-Each phase is independently evaluated, but together they form a progressive inquiry: \emph{generate},
-then \emph{understand}, then \emph{extend}.
+MemeSonic consists of three phases (Figure~\ref{fig:pipeline}): 
+(1) Meme-to-Speech Generation, which externalizes meme affect as expressive speech; 
+(2) Incongruity-Aware Fusion, which models image-text conflict for affect understanding; and 
+(3) Tri-Modal Affective Fusion, which studies whether generated speech provides non-redundant affective signal.
 
 \subsection{Phase 1: Meme-to-Speech Generation}
 
-\subsubsection{Script Generation via Adapter}
-Given the meme image $v$ and text $t$, we use GPT-4.1-mini with a multimodal adapter prompt that
-provides the image, the extracted caption, and the meme's pragmatic context to generate a voiceover
-script $s$. The prompt instructs the model to narrate the \emph{pragmatic intent} of the meme—
-preserving irony, sarcasm, and humor—rather than producing a literal description.
+\paragraph{Script Generation and Prosody Prompt Adapter}
+Given a meme image $v$ and text $t$, we first generate a voiceover script $s$ from the image-text context. Rather than literally describing the meme, the script verbalizes its pragmatic intent, including sarcasm, irony, humor, and affective reversal.
 
-\subsubsection{Incongruity-to-Prosody Adapter}
-The script $s$ is passed to ElevenLabs TTS, with voice settings modulated by the incongruity score
-$\delta$ (defined in Phase 2). High incongruity leads to lower stability (more expressive variance)
-and higher style (more dramatic delivery), operationalized as:
-\begin{equation}
-  \text{stability} = 1 - \alpha\,\delta, \quad \text{style} = \beta\,\delta
-\end{equation}
-where $\alpha, \beta$ are calibrated on held-out validation memes.
-This produces audio $a^*$, which serves as the pseudo ground truth for Phase 3.
+Discrete affect labels are too coarse to capture meme-specific delivery styles. We therefore train a Qwen3-4B-based emotion-to-prosody adapter. Given the affect label $\ell=(y^{(s)},y^{(i)})$ and image-text context $r(v,t)$, the adapter generates a prosody prompt $\pi=A_{\eta}(\ell,r(v,t))$, where $\pi$ controls tone, rhythm, emphasis, intensity, and speaking style.
+
+\paragraph{Conditioned Speech Generation}
+We synthesize meme voiceover audio by conditioning the TTS model on the script, prosody prompt, and affect label:
+$a^{*}=\Psi(s,\pi,\ell)$.
+This conditioning adjusts both voice timbre and intonation style according to the meme's visual-textual semantics and pragmatic affect. The resulting speech externalizes implicit meme emotion as an explicit prosodic signal, and serves as pseudo ground-truth audio for downstream understanding.
 
 \subsection{Phase 2: Incongruity-Aware Multimodal Fusion}
 
-\subsubsection{Explicit Affect Decomposition}
-We encode the meme image $v$ with the CLIP image encoder $\phi_v$ and text $t$ with the CLIP text
-encoder $\phi_t$, both frozen. Each encoder output is projected onto a set of $C$ emotion prototype
-vectors $\{\mathbf{e}_c\}_{c=1}^C$ derived from CLIP text encodings of emotion label descriptions
-(e.g., ``a happy and joyful image''):
+\paragraph{Explicit Affect Decomposition}
+We encode the meme image $v$ and text $t$ using frozen CLIP encoders $\phi_v$ and $\phi_t$. Each embedding is projected onto $C$ emotion prototypes $\{\mathbf{e}_c\}_{c=1}^C$, producing emotion distributions $p_v,p_t\in\Delta^C$:
 \begin{equation}
-  p^{(\cdot)}_c = \frac{\exp\!\bigl(\phi_{(\cdot)}(\cdot)^\top \mathbf{e}_c / \tau\bigr)}
-                       {\sum_{j=1}^C \exp\!\bigl(\phi_{(\cdot)}(\cdot)^\top \mathbf{e}_j / \tau\bigr)}
-\end{equation}
-yielding emotion distributions $p_v, p_t \in \Delta^C$ for image and text respectively. The
-incongruity score is:
-\begin{equation}
-  \delta(v,t) = \tfrac{1}{2}\,\|p_v - p_t\|_1 \;\in [0,1]
-  \label{eq:incong}
-\end{equation}
-A value near 0 indicates emotional alignment; a value near 1 indicates strong conflict. This scalar
-is also used in Phase 1 to condition prosody generation.
-
-\subsubsection{FusionMoE: Incongruity-Gated Mixture of Experts}
-\label{sec:fusionmoe}
-Rather than applying a fixed fusion strategy, we route each sample to one of three expert fusion
-modules based on its incongruity score $\delta$:
-
-\textbf{Expert R (Redundancy)} handles emotionally aligned samples ($\delta$ low). It concatenates
-image and text embeddings: $z_R = [\phi_v(v);\, \phi_t(t)]$.
-
-\textbf{Expert U (Uniqueness)} handles samples where one modality dominates. It applies a learned
-weighted combination: $z_U = \alpha \phi_v(v) + (1-\alpha) \phi_t(t)$.
-
-\textbf{Expert S (Synergy)} handles high-incongruity samples, directly encoding the conflict:
-\begin{equation}
-  z_S = \text{MLP}\bigl([\phi_v(v);\, \phi_t(t);\, p_v - p_t;\, \delta]\bigr)
+  p^{(\cdot)}_c =
+  \frac{\exp(\phi_{(\cdot)}(\cdot)^\top \mathbf{e}_c/\tau)}
+       {\sum_{j=1}^C \exp(\phi_{(\cdot)}(\cdot)^\top \mathbf{e}_j/\tau)}
 \end{equation}
 
-The router is a single linear layer conditioned on $[\phi_v(v);\, \phi_t(t);\, \delta]$:
+We define image-text incongruity as:
 \begin{equation}
-  \mathbf{r} = \text{softmax}\bigl(W_r [\phi_v(v);\, \phi_t(t);\, \delta] + b_r\bigr)
+  \delta(v,t)=\tfrac{1}{2}\|p_v-p_t\|_1 \in [0,1]
 \end{equation}
-The final fused representation is a soft mixture $z = r_R z_R + r_U z_U + r_S z_S$,
-followed by a task-specific linear classifier. Training uses a two-objective loss:
-$\mathcal{L} = \mathcal{L}_\text{cls}(z, y) + \lambda \mathcal{L}_\text{gate}(\mathbf{r}, \mathbf{r}^*)$,
-where $\mathbf{r}^*$ are soft gate labels derived from per-sample performance of trained unimodal experts.
+where larger $\delta$ indicates stronger affective conflict.
 
-\subsection{Phase 3: Tri-Modal Alignment}
-\label{sec:projector}
+\paragraph{FusionMoE}
 
-Having generated audio $a^*$ in Phase 1 and established a strong image-text understanding in Phase 2,
-we now ask: does audio carry affective signal \emph{beyond} what image and text already provide?
-Naive late fusion of all three modalities yields near-zero modal contribution from audio, because
-Emotion2Vec embeddings and CLIP/ImageBind embeddings inhabit incompatible feature spaces.
+Different affective tasks favor different fusion assumptions. Literal sentiment often benefits from direct semantic aggregation, while sarcasm and humor require explicit modeling of image-text conflict. We therefore model meme understanding as adaptive fusion over complementary fusion strategies.
 
-To bridge this gap, we train a linear projector $W \in \mathbb{R}^{D_a \times D_{ib}}$ that maps
-Emotion2Vec audio embeddings~\citep{ma2023emotion2vec} ($D_a=1024$) into ImageBind's shared
-embedding space ($D_{ib}=1024$):
+\emph{Note.} Our MoE differs from LLM-style MoE: experts correspond to explicit fusion strategies rather than learned parameter specializations. The expert set is task-dependent and can be adapted to other multimodal reasoning tasks.
+
+\textbf{Expert R (Concat Fusion).}
+This expert performs standard representation-level fusion through direct feature concatenation:
 \begin{equation}
-  \hat{a} = \text{normalize}\bigl(W\, \phi_a(a^*) + b\bigr)
+  z_R=[\phi_v(v);\phi_t(t)]
 \end{equation}
-The projector is supervised with MSE loss against the ImageBind text prototype of the sample's
-ground-truth sentiment class, using all 9 prosody-grid variants of $a^*$ as data augmentation:
+It captures aligned semantic signals and serves as a strong baseline for literal or weakly incongruent memes.
+
+\textbf{Expert U (Late Fusion).}
+This expert performs decision-level fusion by averaging unimodal predictions:
 \begin{equation}
-  \mathcal{L}_\text{proj} = \frac{1}{N} \sum_{i=1}^N
-    \bigl\|\hat{a}_i - \text{normalize}(\mathbf{e}_{y^{(s)}_i})\bigr\|_2^2
+  z_U=\tfrac{1}{2}(W_v\phi_v(v)+W_t\phi_t(t))
 \end{equation}
-After projection, tri-modal fusion averages $\phi_v(v)$, $\phi_t(t)$, and $\hat{a}$ in the shared
-ImageBind space, followed by cosine-similarity classification against text prototypes.
-This design isolates (1) modality-space incompatibility from (2) the intrinsic informativeness of
-audio, confirming that audio is a non-redundant affective modality once properly aligned.
+It is more robust when one modality dominates or when image-text interaction is weak.
+
+\textbf{Expert S (Incongruity Fusion).}
+This expert explicitly models cross-modal conflict using emotion disagreement and incongruity features:
+\begin{equation}
+  z_S=\text{MLP}([\phi_v(v);\phi_t(t);p_v-p_t;\delta])
+\end{equation}
+It is designed for sarcasm, irony, and other non-literal memes where affect emerges from image-text tension.
+
+A router predicts soft expert weights:
+\begin{equation}
+  \mathbf{r}=
+  \text{softmax}(W_r[\phi_v(v);\phi_t(t);\delta]+b_r)
+\end{equation}
+
+The final representation is computed as:
+\begin{equation}
+  z=r_R z_R+r_U z_U+r_S z_S
+\end{equation}
+
+
+\subsection{Phase 3: Tri-Modal Affective Fusion}
+
+We next incorporate generated speech as a third affective modality for meme understanding. Naive tri-modal fusion fails because speech and vision-language embeddings lie in incompatible representation spaces. In particular, ImageBind targets general audio semantics rather than expressive speech.
+
+To bridge this gap, we train a linear projector $W\in\mathbb{R}^{D_a\times D_c}$ that maps Emotion2Vec speech embeddings into the shared CLIP/ImageBind semantic space:
+\begin{equation}
+  \hat{a}=\text{normalize}(W\phi_a(a^*)+b)
+\end{equation}
+
+The projector is supervised using MSE loss against the sentiment prototype of the sample:
+\begin{equation}
+  \mathcal{L}_{\text{proj}}
+  =
+  \frac{1}{N}\sum_{i=1}^N
+  \|\hat{a}_i-\text{normalize}(\mathbf{e}_{y_i^{(s)}})\|_2^2
+\end{equation}
+
+After projection, image, text, and speech embeddings are fused in the shared semantic space for cosine-similarity classification. This experiment isolates modality mismatch from signal quality, showing that generated speech becomes a useful affective modality once properly aligned.

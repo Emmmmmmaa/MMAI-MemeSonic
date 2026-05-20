@@ -46,17 +46,14 @@
 % Place the pipeline diagram (from slide p.9) as figures/pipeline.png
 \begin{figure}[t]
   \centering
-  % Uncomment once figures/pipeline.png is added:
-  % \includegraphics[width=\linewidth]{figures/pipeline.png}
-  \fbox{\parbox{0.95\linewidth}{\centering\vspace{2em}
-    \textit{[Figure: MemeSonic system overview — Meme Input $\to$ CLIP Encoders $\to$
-    Incongruity Score $\to$ MMOE Routing $\to$ Labels \& Fused Embedding $\to$
-    LLM Adapter / Open-source Adapter $\to$ Synthesized Audio]}
-  \vspace{2em}}}
-  \caption{MemeSonic system overview. The framework decomposes image and text into independent
-  emotion distributions, computes a cross-modal incongruity score, routes each sample to the
-  appropriate fusion expert, and translates the fused representation into prosodically expressive
-  audio via two generation paths.}
+  \includegraphics[width=\linewidth]{figures/pipeline.png}
+  \caption{MemeSonic system overview. \textbf{Phase 1} generates expressive meme voiceover by
+  conditioning ElevenLabs TTS on a GPT-4.1-mini script and a Qwen3-based prosody prompt, with
+  prosody further modulated by the incongruity score $\delta$. \textbf{Phase 2} computes $\delta$
+  from per-modality emotion distributions and routes each sample through FusionMoE (Expert~R:
+  Concat, Expert~U: Late Fusion, Expert~S: Incongruity Fusion). \textbf{Phase 3} aligns
+  Emotion2Vec speech embeddings into the shared CLIP/ImageBind space via a linear projector and
+  fuses all three modalities for classification.}
   \label{fig:pipeline}
 \end{figure}
 

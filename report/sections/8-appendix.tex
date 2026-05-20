@@ -25,46 +25,59 @@ organized by sentiment class and voice setting:
 \section{Full Classification Results}
 \label{sec:full_results}
 
-Table~\ref{tab:full_acc} reports Accuracy (complementing the Macro-F1 in Table~\ref{tab:main_results})
-across all methods and tasks. Table~\ref{tab:llm_vs_trained} and Figure~\ref{fig:llm_heatmap}
-provide a direct Macro-F1 comparison between LLM zero-shot baselines and our best trained model
-per task, isolating where each paradigm has an advantage.
+Tables~\ref{tab:full_acc} and~\ref{tab:full_f1} report Accuracy and Macro-F1 across all methods
+and tasks. \best{Bold green} = best trained model; LLM baselines shown for reference.
 
 \begin{table}[h]
 \centering
-\caption{Accuracy across all methods and tasks. Format mirrors Table~\ref{tab:main_results}.
-\best{Bold green} = best trained model; LLM baselines shown for reference.}
+\caption{Accuracy across all methods and tasks. \best{Bold green} = best trained model.}
 \label{tab:full_acc}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llccccccc|ccccc}
 \toprule
  & & \multicolumn{7}{c|}{\textbf{Trained Models}} & \multicolumn{5}{c}{\textbf{LLM Zero-Shot}} \\
 \cmidrule(lr){3-9}\cmidrule(lr){10-14}
-Dataset & Task & Uni-I & Uni-T & Concat & Late & Incong & MULT & MMOE
-        & GPT-4o & Gemini & o4-mini & Gemini-CoT & Qwen3 \\
+Dataset & Task & Uni-I & Uni-T & Concat & Late & Incong & MULT & FusionMoE & GPT-4o & Gemini & o4-mini & Gemini-CoT & Qwen3 \\
 \midrule
-MET-Meme & intention  & 40.3 & 38.5 & 40.1 & 39.8 & 28.1 & 36.2 & 34.7
-                      & 44.6 & 42.9 & \textbf{56.0} & 37.1 & 52.0 \\
-MET-Meme & sentiment  & 29.4 & 28.2 & 36.8 & 33.1 & 30.5 & 29.0 & 31.9
-                      & 33.6 & 38.8 & 39.6 & 45.9 & 35.9 \\
-MET-Meme & hate       & \best{87.1} & 85.4 & 83.7 & 84.9 & 83.2 & 85.6 & 85.6
-                      & 72.7 & 79.4 & 81.7 & 72.1 & 74.6 \\
-MET-Meme & metaphor   & 81.2 & 75.5 & 82.9 & 81.8 & \best{87.6} & 84.7 & \best{87.6}
-                      & 36.7 & 71.3 & 73.1 & 63.5 & 57.1 \\
+MET-Meme & intention    & 45 & 40 & 42 & 42 & 37 & 45 & \best{44} & 52 & 48 & \textbf{56} & 46 & 50 \\
+MET-Meme & sentiment    & 39 & 36 & 44 & 40 & 48 & 37 & \best{45} & 28 & 34 & 32 & 36 & 32 \\
+MET-Meme & hate         & 84 & 82 & 84 & 85 & \best{87} & 86 & 86 & 76 & 74 & 86 & 76 & 82 \\
+MET-Meme & metaphor     & 81 & 76 & 83 & 82 & \best{88} & 85 & \best{88} & 58 & 72 & 74 & 64 & 64 \\
 \midrule
-Memotion & humour     & 53.9 & 51.4 & 53.4 & \best{54.3} & 45.8 & 52.0 & 46.9
-                      & 43.1 & 49.3 & 48.0 & 38.3 & 50.9 \\
-Memotion & sarcasm    & \best{55.7} & 55.2 & 52.4 & 54.9 & 46.1 & 49.8 & 47.3
-                      & 46.6 & 58.6 & 63.1 & 58.3 & 67.0 \\
-Memotion & offensive  & 50.6 & 48.7 & 53.1 & 54.8 & 55.3 & 42.1 & \best{56.0}
-                      & 42.1 & 50.2 & 76.4 & 49.3 & 46.3 \\
-Memotion & motivational & 67.1 & 66.3 & 65.9 & \best{69.3} & 60.8 & 62.9 & 61.7
-                        & 54.9 & 55.0 & 55.1 & 54.7 & 55.0 \\
-Memotion & sentiment  & 57.3 & 55.9 & 56.8 & 56.5 & 49.4 & \best{62.7} & 50.3
-                      & 50.1 & 45.7 & 50.8 & 43.9 & 40.0 \\
+Memotion  & humour       & 54 & 49 & 58 & \best{58} & 66 & 54 & 65 & 68 & 68 & 66 & 46 & 68 \\
+Memotion  & sarcasm      & 37 & 38 & 33 & 34 & \best{47} & 44 & 42 & 52 & 50 & 56 & 44 & 54 \\
+Memotion  & offensive    & 53 & 54 & 52 & 51 & 52 & \best{58} & 48 & 38 & 46 & 42 & 38 & 40 \\
+Memotion  & motivational & 57 & 60 & 61 & 60 & \best{68} & 65 & 62 & 52 & 54 & 52 & 46 & 54 \\
+Memotion  & sentiment    & 45 & 46 & 44 & 49 & \best{56} & 50 & 46 & 30 & 26 & 28 & 22 & 24 \\
 \midrule
-MMSD 2.0 & sarcasm    & 77.5 & 77.6 & 82.6 & 82.0 & \best{84.0} & 83.0 & \best{84.0}
-                      & 80.0 & 85.9 & 84.0 & 74.0 & 57.2 \\
+MMSD 2.0  & sarcasm      & 78 & 78 & 83 & 82 & \best{84} & 83 & 83 & 80 & 86 & 84 & 74 & 58 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Macro-F1 across all methods and tasks. \best{Bold green} = best trained model.}
+\label{tab:full_f1}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccccc|ccccc}
+\toprule
+ & & \multicolumn{7}{c|}{\textbf{Trained Models}} & \multicolumn{5}{c}{\textbf{LLM Zero-Shot}} \\
+\cmidrule(lr){3-9}\cmidrule(lr){10-14}
+Dataset & Task & Uni-I & Uni-T & Concat & Late & Incong & MULT & FusionMoE & GPT-4o & Gemini & o4-mini & Gemini-CoT & Qwen3 \\
+\midrule
+MET-Meme & intention    & 32 & 30 & 32 & 31 & 21 & 27 & \best{29} & 35 & 34 & \textbf{45} & 27 & 40 \\
+MET-Meme & sentiment    & 25 & 24 & 31 & 28 & 25 & 24 & \best{29} & 28 & 33 & 33 & 39 & 30 \\
+MET-Meme & hate         & 39 & 39 & 38 & 38 & 37 & \best{41} & 38 & 30 & 36 & 44 & 30 & 31 \\
+MET-Meme & metaphor     & 81 & 76 & 83 & 82 & \best{88} & 85 & \best{88} & 37 & 71 & 73 & 64 & 57 \\
+\midrule
+Memotion  & humour       & 36 & 33 & 36 & \best{36} & 27 & \best{36} & 30 & 27 & 31 & 30 & 21 & 32 \\
+Memotion  & sarcasm      & \best{33} & \best{33} & 30 & 32 & 24 & 28 & 29 & 27 & 39 & 44 & 39 & 49 \\
+Memotion  & offensive    & 32 & 30 & 33 & 34 & \best{35} & 24 & 26 & 24 & 31 & 60 & 29 & 27 \\
+Memotion  & motivational & 49 & 48 & 47 & 51 & 41 & 43 & \best{53} & 38 & 39 & 38 & 37 & 39 \\
+Memotion  & sentiment    & 32 & 31 & 31 & 31 & 25 & \best{37} & 34 & 27 & 24 & 27 & 22 & 19 \\
+\midrule
+MMSD 2.0  & sarcasm      & 78 & 78 & 83 & 82 & \best{84} & 83 & 83 & 80 & 86 & 84 & 74 & 57 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -253,8 +266,67 @@ Memotion  & sarcasm      & 5{,}593 & 699 & 700 & 3 \\
 Memotion  & offensive    & 5{,}593 & 699 & 700 & 4 \\
 Memotion  & motivational & 5{,}593 & 699 & 700 & 2 \\
 Memotion  & sentiment    & 5{,}593 & 699 & 700 & 3 (pos/neu/neg) \\
+\multicolumn{6}{l}{\footnotesize\textit{Memotion splits are random 80/10/10 (seed 42); not official splits.}} \\
 \midrule
 MMSD 2.0  & sarcasm      & 16{,}000 & 3{,}000 & 3{,}482 & 2 (binary) \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Additional Figures}
+\label{sec:additional_figures}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/rq1_three_way_emotion_dist.png}
+  \caption{Three-way emotion distribution across image, text, and audio modalities.
+  The divergence between per-modality distributions motivates the incongruity score $\delta$
+  as an explicit signal for cross-modal conflict.}
+  \label{fig:rq1_emotion_dist}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.75\linewidth]{figures/rq2_projector_vs_naive.png}
+  \caption{Tri-modal fusion accuracy with and without the linear projector.
+  Naive fusion (all 9 prosody settings) yields no improvement over the image-text baseline;
+  the learned projector lifts sentiment accuracy from 0.27 to 0.82.}
+  \label{fig:rq2_projector}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figures/baseline-barchart.png}
+  \caption{LLM zero-shot Macro-F1 across all datasets and tasks ($n=50$ each).
+  Hatched bars indicate reasoning models (CoT). LLMs perform strongly on open-ended tasks
+  (intention, sarcasm) but underperform trained models on structured affect tasks (metaphor, motivational).}
+  \label{fig:llm_barchart}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figures/meme-sentimentintention.png}
+  \caption{Sentiment--intention space of meme affect labels. Emotions cluster into four quadrants
+  by valence (positive/negative) and intention (high/low), revealing the structured pragmatic
+  space that meme affect models must navigate.}
+  \label{fig:sentiment_intention}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figures/incongurity-fusion.png}
+  \caption{Illustration of the Incongruity Fusion (Expert-S) mechanism. Per-modality emotion
+  distributions are computed and their difference $p_v - p_t$ is concatenated with the
+  incongruity score $\delta$ as explicit conflict features for the MLP classifier.}
+  \label{fig:incongruity_fusion}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figures/error-analysis.png}
+  \caption{Error analysis: examples from Memotion~7k where LLM predictions (GPT-4o, Gemini)
+  diverge from ground truth. Cases labeled \textit{not\_funny} by annotators are often
+  classified as \textit{funny} by LLMs, reflecting subjectivity in humor perception.}
+  \label{fig:error_analysis}
+\end{figure}

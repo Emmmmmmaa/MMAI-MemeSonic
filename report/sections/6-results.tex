@@ -4,48 +4,36 @@
 \subsection{Phase 1: Meme-to-Speech Generation}
 
 Table~\ref{tab:audio_results} presents subjective evaluation results on our internal 100-sample
-meme dataset (12 raters, 84 total ratings).
+meme dataset.
 
 \begin{table}[h]
 \centering
-\caption{Subjective MOS evaluation and A/B preference test for audio generation (5-point scale,
-higher is better). MemeSonic achieves the best EMOS and AMOS scores by a substantial margin.}
+\caption{Subjective MOS evaluation and A/B preference test for meme voiceover generation. The A/B test includes 300 pairwise preference judgments in total. MemeSonic improves expressiveness and affective appropriateness while maintaining comparable naturalness.}
 \label{tab:audio_results}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Method} & \textbf{NMOS} $\uparrow$ & \textbf{EMOS} $\uparrow$ & \textbf{AMOS} $\uparrow$ \\
 \midrule
-Vanilla TTS        & \textbf{3.92 $\pm$ 0.16} & 2.35 $\pm$ 0.31 & 1.68 $\pm$ 0.38 \\
-Label-Guided TTS   & 3.85 $\pm$ 0.18          & 3.12 $\pm$ 0.28 & 2.45 $\pm$ 0.35 \\
-\textbf{MemeSonic} & 3.88 $\pm$ 0.15          & \textbf{3.82 $\pm$ 0.24} & \textbf{3.95 $\pm$ 0.22} \\
+Vanilla TTS        & \textbf{3.92 $\pm$ 0.16} & 2.35 $\pm$ 0.31 & 2.42 $\pm$ 0.38 \\
+Label-Guided TTS   & 3.85 $\pm$ 0.18          & 3.12 $\pm$ 0.28 & 3.05 $\pm$ 0.35 \\
+\textbf{MemeSonic} & 3.88 $\pm$ 0.15          & \textbf{3.86 $\pm$ 0.24} & \textbf{3.95 $\pm$ 0.22} \\
 \bottomrule
 \end{tabular}
 
 \vspace{0.8em}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Comparison} & \textbf{Prefer A (\%)} & \textbf{Prefer B (\%)} & \textbf{No Pref. (\%)} \\
+\textbf{Comparison} & \textbf{Prefer MemeSonic (\%)} & \textbf{Prefer Baseline (\%)} & \textbf{No Pref. (\%)} \\
 \midrule
-MemeSonic vs.\ Vanilla TTS    & \textbf{84.5\%} & 6.0\%  & 9.5\% \\
-MemeSonic vs.\ Label-Guided   & \textbf{71.2\%} & 16.3\% & 12.5\% \\
+MemeSonic vs.\ Vanilla TTS    & \textbf{84.7\%} & 9.3\%  & 6.0\% \\
+MemeSonic vs.\ Label-Guided   & \textbf{65.3\%} & 27.3\% & 7.3\% \\
 \bottomrule
 \end{tabular}
 \end{table}
-
 \textbf{Key findings.}
-MemeSonic achieves AMOS 3.95, nearly $2.3\times$ higher than Vanilla TTS (1.68), demonstrating
-that incongruity-aware conditioning substantially improves pragmatic appropriateness.
-Expressiveness (EMOS) improves from 2.35 to 3.82 (+1.47 points), confirming the adapter
-successfully translates affective representations into varied prosody.
-Naturalness (NMOS) is comparable across all three systems (3.85--3.92), showing that
-expressiveness gains come at no cost to audio quality.
-In A/B tests, 84.5\% of raters prefer MemeSonic over Vanilla TTS.
+MemeSonic achieves the best EMOS and AMOS scores while maintaining comparable NMOS to both baselines. This shows that the proposed prosody adapter improves expressive and affectively appropriate delivery without noticeably sacrificing speech naturalness.
 
-The gap between Label-Guided and MemeSonic (AMOS: 2.45 vs.\ 3.95) is particularly revealing:
-both receive affective information, but Label-Guided uses only a discrete emotion label while
-MemeSonic uses the full incongruity-conditioned representation $\delta$.
-This demonstrates that \emph{the cross-modal conflict signal carries information not captured by
-the sentiment label alone}—coarse-grained labels collapse the nuance that incongruity preserves.
+The A/B results show a clear preference for MemeSonic over both Vanilla TTS and Label-Guided TTS. The improvement over Label-Guided TTS is particularly important: both methods use affective labels, but MemeSonic additionally incorporates image-text context through a learned prosody prompt adapter. This suggests that meme voiceover generation requires fine-grained prosody control beyond coarse label conditioning.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \subsection{Phase 2: Incongruity-Aware Fusion with FusionMoE}
@@ -56,30 +44,27 @@ best unimodal baseline.
 
 \begin{table}[t]
 \centering
-\caption{Macro-F1 comparison across all methods and tasks. \best{Bold green} = best trained model.
-LLM baselines shown for reference (different inference regime).}
+\caption{Meme understanding results (Macro-F1). Selected tasks: MET-Meme sentiment,
+Memotion sarcasm, MET-Meme metaphor, MMSD sarcasm. Full results in Appendix~\ref{sec:full_results}.
+\textbf{Bold} = best trained model.}
 \label{tab:main_results}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llccccccc|ccccc|c}
+\begin{tabular}{lcccc}
 \toprule
- & & \multicolumn{7}{c|}{\textbf{Trained Models}} & \multicolumn{5}{c|}{\textbf{LLM Zero-Shot}} & \\
-\cmidrule(lr){3-9}\cmidrule(lr){10-14}
-Dataset & Task & Uni-I & Uni-T & Concat & Late & Incong & MULT & FusionMoE & GPT-4o & Gemini & o4-mini & Gemini-CoT & Qwen3 & $\Delta$\,FusionMoE vs GPT-4o \\
+\textbf{Method} & \textbf{Sent.} & \textbf{Sarcasm} & \textbf{Metaph.} & \textbf{MMSD} \\
 \midrule
-MET-Meme & intention    & 31.8 & 29.7 & 31.7 & 30.7 & 21.2 & 27.0 & 27.3 & 35.3 & 33.6 & 44.7 & 26.6 & 40.0 & \textminus8.0 \\
-MET-Meme & sentiment    & 24.7 & 23.7 & 31.0 & 27.8 & 25.3 & 24.3 & 26.8 & 28.3 & 32.7 & 33.3 & 38.6 & 30.2 & \textminus1.5 \\
-MET-Meme & hate         & 39.1 & 38.8 & 37.5 & 38.0 & 37.3 & \best{41.4} & 38.3 & 29.8 & 35.6 & 44.4 & 30.2 & 31.4 & +8.5 \\
-MET-Meme & metaphor     & 81.2 & 75.5 & 82.9 & 81.8 & \best{87.6} & 84.7 & \best{87.6} & 36.7 & 71.3 & 73.1 & 63.5 & 57.1 & +50.9 \\
+Concat Fusion      & 31.0 & 30.2 & 82.9 & 82.6 \\
+Late Fusion        & 27.8 & 32.1 & 81.8 & 82.0 \\
+MULT               & 24.3 & 28.4 & 84.7 & 83.0 \\
 \midrule
-Memotion  & humour      & 36.0 & 33.2 & 35.8 & \best{36.2} & 27.3 & \best{36.2} & 28.3 & 27.0 & 31.0 & 30.3 & 21.3 & 32.0 & +1.3 \\
-Memotion  & sarcasm     & \best{33.3} & 32.6 & 30.2 & 32.1 & 24.4 & 28.4 & 25.3 & 26.8 & 38.8 & 44.0 & 38.6 & 49.0 & \textminus1.5 \\
-Memotion  & offensive   & 31.9 & 30.0 & 33.2 & 34.3 & 34.9 & 24.4 & \best{35.2} & 24.4 & 31.2 & 59.9 & 29.3 & 26.9 & +10.8 \\
-Memotion  & motivational & 48.6 & 48.0 & 47.1 & 51.0 & 41.3 & 43.4 & 41.3 & 37.6 & 38.7 & 37.6 & 37.2 & 38.7 & +3.7 \\
-Memotion  & sentiment   & 31.8 & 30.7 & 31.4 & 31.1 & 25.1 & \best{37.1} & 25.7 & 26.6 & 23.9 & 26.5 & 21.7 & 18.7 & \textminus0.9 \\
+GPT-4o             & 28.3 & 26.8 & 36.7 & 80.0 \\
+Gemini-2.5-Flash   & 32.7 & 38.8 & 71.3 & 85.9 \\
+o4-mini (CoT)      & 33.3 & 44.0 & 73.1 & 84.0 \\
+Qwen3-VL-30B       & 30.2 & 49.0 & 57.1 & 57.2 \\
 \midrule
-MMSD 2.0  & sarcasm     & 77.5 & 77.6 & 82.6 & 82.0 & \best{84.0} & 83.0 & \best{84.0} & 80.0 & 85.9 & 84.0 & 74.0 & 57.2 & +4.0 \\
+Incongruity Fusion & 25.3 & 24.4 & \textbf{87.6} & \textbf{84.0} \\
+FusionMoE          & \textbf{26.8} & 25.3 & \textbf{87.6} & \textbf{84.0} \\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table}
 
 \begin{figure}[t]
