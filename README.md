@@ -25,10 +25,10 @@ We train a prosody adapter to read the emotional subtext of a meme (not just its
 Standard multimodal fusion assumes image and text are aligned. For memes, that assumption breaks. We explicitly compute an *incongruity score* $\delta$ between image and text emotion distributions, then route each meme through the fusion strategy it actually needs: pooling for literal memes, conflict modeling for ironic ones. This is FusionMoE.
 
 **Notebooks:**
-- [image-text-fusion/incongruity_aware_fusion.ipynb](image-text-fusion/incongruity_aware_fusion.ipynb) — incongruity score $\delta$, Incongruity Fusion, all trained baselines
+<!-- - [image-text-fusion/incongruity_aware_fusion.ipynb](image-text-fusion/incongruity_aware_fusion.ipynb) — incongruity score $\delta$, Incongruity Fusion, all trained baselines -->
 - [image-text-fusion/fusion_moe.ipynb](image-text-fusion/fusion_moe.ipynb) — FusionMoE 3-expert router, training across all 10 tasks
 - [image-text-fusion/llm_baseline_eval.ipynb](image-text-fusion/llm_baseline_eval.ipynb) — LLM zero-shot baselines (GPT-4o, Gemini, o4-mini, Qwen3)
-- [image-text-fusion/llava_probing.ipynb](image-text-fusion/llava_probing.ipynb) — LLaVA probing for affective representation
+<!-- - [image-text-fusion/llava_probing.ipynb](image-text-fusion/llava_probing.ipynb) — LLaVA probing for affective representation -->
 - [image-text-fusion/eda/meme_dataset.ipynb](image-text-fusion/eda/meme_dataset.ipynb) — dataset EDA, label distributions, incongruity statistics
 
 ---

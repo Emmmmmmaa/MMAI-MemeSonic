@@ -37,8 +37,8 @@ demo/dist/
 *.npz
 image-text-fusion/artifacts/
 
-# Dataset images (tracked via HuggingFace)
-data/images/
+# Dataset (tracked via HuggingFace)
+data/
 
 # Slides
 *.pptx
