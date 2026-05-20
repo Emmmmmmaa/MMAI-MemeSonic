@@ -6,7 +6,7 @@ MemeSonic is built around that insight: **incongruity is the signal, not noise.*
 
 [Demo 1](https://tinyurl.com/4schzjb5) · [Demo 2](https://gemini.google.com/share/44df652817ed)
 
-![MemeSonic Pipeline](report/figures/pipeline.png)
+![MemeSonic Pipeline](img/pipeline.png)
 
 ---
 
